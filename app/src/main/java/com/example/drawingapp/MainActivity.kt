@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         // Sets up and adds the splash screen to the fragment
         val splashScreenFragment = SplashScreenFragment()
         splashScreenFragment.setListener(){ // When the splash is exited add recycler view to main activity container
-            val recFragView = DrawingRecyclerFragment()
+            val recFragView = MainScreenFragment()
             recFragView.setListener(){ // TODO
                 Log.e("Clicked", "Clicked")
             }

@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.drawingapp.databinding.FragmentDrawingRecyclerBinding
 
-class DrawingRecyclerFragment : Fragment() {
+class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentDrawingRecyclerBinding
     private var clickCallback : () -> Unit = {}
     override fun onCreateView(
@@ -15,7 +15,7 @@ class DrawingRecyclerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_drawing_recycler, container, false)
+        return inflater.inflate(R.layout.fragment_main_screen, container, false)
     }
 
     public fun setListener(listener: () -> Unit){
