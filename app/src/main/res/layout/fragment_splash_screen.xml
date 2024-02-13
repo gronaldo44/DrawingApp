@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,10 +8,60 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:id="@+id/continueButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Continue" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="174dp" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            app:srcCompat="@drawable/paintlogo" />
+
+        <TextView
+            android:id="@+id/welcomeMessage"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Welcome To Our Drawing App"
+            android:textAlignment="center"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/contentMessage"
+            android:layout_width="match_parent"
+            android:layout_height="91dp"
+            android:text="In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!"
+            android:textAlignment="center"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="47dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/continueButton"
+                android:layout_width="213dp"
+                android:layout_height="wrap_content"
+                android:text="Continue To App" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </FrameLayout>
