@@ -95,7 +95,7 @@ class DrawingViewModel : ViewModel() {
 
     /**
      * Sets the brush shape.
-     * @param shape The new size value.
+     * @param shape The new shape value.
      */
     fun selectShape(shape: Brush.Shape) {
         val currentBrush = _brush.value ?: Brush()

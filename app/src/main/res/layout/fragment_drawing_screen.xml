@@ -26,35 +26,88 @@
             android:visibility="gone"/>
 
         <LinearLayout
+            android:id="@+id/ShapeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            <LinearLayout
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/pathButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Path" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/rectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Rect" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/starButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Star" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/triButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Triangle" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/SizeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="47dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <SeekBar
+                android:id="@+id/seekBar"
                 android:layout_width="263dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp" />
-
-                <SeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="263dp"
-                    android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="0"
-                    android:visibility="gone" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="0"
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/seekButton"
                 android:layout_width="144dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Button"
-                android:visibility="gone" />
+                android:text="Pick Size"
+                android:visibility="visible" />
 
         </LinearLayout>
 
@@ -84,8 +137,7 @@
                 android:id="@+id/btnShapes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Shapes"
-                android:onClick="@{() -> viewModel.showShapesDialog()}" />
+                android:text="Shapes" />
 
             <!-- Button to save/load -->
             <Button

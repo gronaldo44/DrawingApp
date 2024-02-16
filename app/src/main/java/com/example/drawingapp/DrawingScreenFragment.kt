@@ -51,17 +51,23 @@ class DrawingScreenFragment : Fragment() {
         }
 
         binding.btnSize.setOnClickListener{
-            binding.seekBar.visibility = View.VISIBLE
-            binding.seekButton.visibility = View.VISIBLE
+            binding.SizeLayout.visibility = View.VISIBLE
             binding.seekButton.setOnClickListener{
                 viewModel.setBrushSize(binding.seekBar.progress.toFloat())
-                binding.seekBar.visibility = View.GONE
-                binding.seekButton.visibility = View.GONE
+                binding.SizeLayout.visibility = View.GONE
             }
         }
 
         binding.btnShapes.setOnClickListener {
-            viewModel.showShapesDialog()
+            binding.ShapeLayout.visibility = View.VISIBLE
+            binding.pathButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.PATH)
+                binding.ShapeLayout.visibility = View.GONE}
+            binding.rectButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.RECTANGLE)
+                binding.ShapeLayout.visibility = View.GONE}
+            binding.starButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.STAR)
+                binding.ShapeLayout.visibility = View.GONE}
+            binding.triButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.TRIANGLE)
+                binding.ShapeLayout.visibility = View.GONE}
         }
 
         binding.btnSaveLoad.setOnClickListener {
@@ -70,8 +76,7 @@ class DrawingScreenFragment : Fragment() {
 
         viewModel.showShapesDialog.observe(viewLifecycleOwner) { showShapesDialog ->
             if (showShapesDialog) {
-                showShapesDialog()
-                viewModel.shapesDialogShown()
+
             }
         }
 
