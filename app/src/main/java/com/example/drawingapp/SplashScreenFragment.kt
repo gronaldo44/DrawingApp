@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentSplashScreenBinding
 
 @SuppressLint("CustomSplashScreen")
@@ -16,14 +17,10 @@ class SplashScreenFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSplashScreenBinding.inflate(layoutInflater)
+        binding = FragmentSplashScreenBinding.inflate(layoutInflater,  container, false)
         binding.continueButton.setOnClickListener {
-            clickCallback()
+            findNavController().navigate(R.id.closedSplashScreen)
         }
         return binding.root
-    }
-
-    fun setListener(function: () -> Unit) {
-        clickCallback = function
     }
 }

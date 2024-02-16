@@ -32,13 +32,29 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/contentMessage"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="91dp"
-            android:text="In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!"
-            android:textAlignment="center"
-            android:textSize="16sp" />
+            android:layout_height="90dp"
+            android:orientation="horizontal">
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/contentMessage"
+                android:layout_width="373dp"
+                android:layout_height="91dp"
+                android:text="In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
