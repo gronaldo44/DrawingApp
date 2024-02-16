@@ -1,6 +1,8 @@
 package com.example.drawingapp
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
+
 
 /**
  * A Fragment responsible for displaying the drawing screen with a navbar.
@@ -42,6 +45,24 @@ class DrawingScreenFragment : Fragment() {
         drawingView.setViewModel(viewModel, viewLifecycleOwner)
 
         // Implement logic for handling navbar interactions
+        binding.colorButton.setOnClickListener{
+            binding.colorPickerView.visibility = View.VISIBLE
+            binding.colorPickerView.addOnColorChangedListener { selectedColor ->
+                viewModel.setBrushColor(selectedColor)
+                binding.colorPickerView.visibility = View.GONE
+            }
+        }
+
+        binding.sizeButton.setOnClickListener{
+            binding.seekBar.visibility = View.VISIBLE
+            binding.seekButton.visibility = View.VISIBLE
+            binding.seekButton.setOnClickListener{
+                viewModel.setBrushSize(binding.seekBar.progress.toFloat())
+                binding.seekBar.visibility = View.GONE
+                binding.seekButton.visibility = View.GONE
+            }
+        }
+
         binding.btnShapes.setOnClickListener {
             viewModel.showShapesDialog()
         }
@@ -52,6 +73,7 @@ class DrawingScreenFragment : Fragment() {
 
         viewModel.showShapesDialog.observe(viewLifecycleOwner) { showShapesDialog ->
             if (showShapesDialog) {
+                viewModel.setShape(true)
                 showShapesDialog()
                 viewModel.shapesDialogShown()
             }

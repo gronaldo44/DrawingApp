@@ -19,11 +19,13 @@ import androidx.lifecycle.Observer
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private lateinit var drawPath: Path
+    private lateinit var drawRect: Rect
     private lateinit var drawPaint: Paint
     private lateinit var canvasPaint: Paint
     private lateinit var canvasBitmap: Bitmap
     private lateinit var drawCanvas: Canvas
     private var viewModel: DrawingViewModel? = null
+    private var isRect: Boolean = false
 
     init {
         setupDrawing()
@@ -34,12 +36,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
      */
     private fun setupDrawing() {
         drawPath = Path()
+        drawRect = Rect()
         drawPaint = Paint().apply {
             isAntiAlias = true
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
+        drawPaint.style = Paint.Style.STROKE
         canvasPaint = Paint(Paint.DITHER_FLAG)
     }
 
@@ -58,7 +62,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawBitmap(canvasBitmap, 0f, 0f, canvasPaint)
-        canvas.drawPath(drawPath, drawPaint)
+        drawCanvas.drawPath(drawPath, drawPaint)
     }
 
     /**
@@ -69,14 +73,27 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         val touchY = event?.y
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                drawPath.moveTo(touchX!!, touchY!!)
+                if (isRect) {
+                    drawRect.left = touchX!!.toInt()
+                    drawRect.top = touchY!!.toInt()
+                } else {
+                    drawPath.moveTo(touchX!!, touchY!!)
+                }
             }
             MotionEvent.ACTION_MOVE -> {
-                drawPath.lineTo(touchX!!, touchY!!)
+                if (!isRect) {
+                    drawPath.lineTo(touchX!!, touchY!!)
+                }
             }
             MotionEvent.ACTION_UP -> {
-                drawCanvas.drawPath(drawPath, drawPaint)
-                drawPath.reset()
+                if (isRect) {
+                    drawRect.right = touchX!!.toInt()
+                    drawRect.bottom = touchY!!.toInt()
+                    drawCanvas.drawRect(drawRect, drawPaint)
+                } else {
+                    drawCanvas.drawPath(drawPath, drawPaint)
+                    drawPath.reset()
+                }
             }
             else -> return false
         }
@@ -95,6 +112,10 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         this.viewModel?.brushSize?.observe(lifecycleOwner, Observer { size ->
             drawPaint.strokeWidth = size
         })
+        this.viewModel?.shape?.observe(lifecycleOwner, Observer { selected ->
+            isRect = selected
+        })
+
     }
 
     /**

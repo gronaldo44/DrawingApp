@@ -19,6 +19,45 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <com.flask.colorpicker.ColorPickerView
+            android:id="@+id/color_picker_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="263dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="263dp"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="0"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/seekButton"
+                android:layout_width="144dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Button"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
         <!-- Navbar -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,17 +67,17 @@
 
             <!-- Button to change brush color -->
             <Button
+                android:id="@+id/colorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Color"
-                android:onClick="@{() -> viewModel.setBrushColor(Color.RED)}" />
+                android:text="Color" />
 
             <!-- Button to change brush size -->
             <Button
+                android:id="@+id/sizeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Size"
-                android:onClick="@{() -> viewModel.setBrushSize(10f)}" />
+                android:text="Size" />
 
             <!-- Button to select shapes -->
             <Button

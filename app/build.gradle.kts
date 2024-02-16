@@ -53,4 +53,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
+
+   // Color wheel selector
+   implementation("com.github.QuadFlask:colorpicker:0.0.13")
 }

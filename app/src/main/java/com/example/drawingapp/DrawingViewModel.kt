@@ -1,5 +1,6 @@
 package com.example.drawingapp
 
+import android.graphics.Canvas
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
@@ -22,6 +23,11 @@ class DrawingViewModel : ViewModel() {
     val brushSize: LiveData<Float>
         get() = _brushSize
 
+    // LiveData for shape
+    private val _shape = MutableLiveData<Boolean>()
+    val shape: LiveData<Boolean>
+        get() = _shape
+
     // LiveData for showing/hiding shapes dialog
     private val _showShapesDialog = MutableLiveData<Boolean>()
     val showShapesDialog: LiveData<Boolean>
@@ -37,9 +43,11 @@ class DrawingViewModel : ViewModel() {
         // Initialize default values
         _brushColor.value = Color.BLACK
         _brushSize.value = 5f
+        _shape.value = false
         _showShapesDialog.value = false
         _showSaveLoadDialog.value = false
     }
+
 
     /**
      * Sets the brush color.
@@ -55,6 +63,14 @@ class DrawingViewModel : ViewModel() {
      */
     fun setBrushSize(size: Float) {
         _brushSize.value = size
+    }
+
+    /**
+     * Sets the shape.
+     * @param shape The new size value.
+     */
+    fun setShape(flag: Boolean) {
+        _shape.value = flag
     }
 
     /**
