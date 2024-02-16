@@ -1,8 +1,6 @@
 package com.example.drawingapp
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +16,6 @@ import androidx.databinding.DataBindingUtil
  * The navbar allows users to interact with the drawing view and perform actions such as
  * changing brush color and size, selecting shapes, and saving/loading drawings.
  *
- * TODO: MainScreenFragment.kt needs to have functionality to reach here
  */
 class DrawingScreenFragment : Fragment() {
     private lateinit var viewModel: DrawingViewModel
@@ -45,7 +42,7 @@ class DrawingScreenFragment : Fragment() {
         drawingView.setViewModel(viewModel, viewLifecycleOwner)
 
         // Implement logic for handling navbar interactions
-        binding.colorButton.setOnClickListener{
+        binding.btnColor.setOnClickListener{
             binding.colorPickerView.visibility = View.VISIBLE
             binding.colorPickerView.addOnColorChangedListener { selectedColor ->
                 viewModel.setBrushColor(selectedColor)
@@ -53,7 +50,7 @@ class DrawingScreenFragment : Fragment() {
             }
         }
 
-        binding.sizeButton.setOnClickListener{
+        binding.btnSize.setOnClickListener{
             binding.seekBar.visibility = View.VISIBLE
             binding.seekButton.visibility = View.VISIBLE
             binding.seekButton.setOnClickListener{
@@ -73,7 +70,6 @@ class DrawingScreenFragment : Fragment() {
 
         viewModel.showShapesDialog.observe(viewLifecycleOwner) { showShapesDialog ->
             if (showShapesDialog) {
-                viewModel.setShape(true)
                 showShapesDialog()
                 viewModel.shapesDialogShown()
             }

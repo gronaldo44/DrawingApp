@@ -2,6 +2,7 @@ package com.example.drawingapp
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,24 +10,17 @@ import androidx.lifecycle.MutableLiveData
 /**
  * ViewModel for managing drawing properties and dialogs in the Drawing Screen.
  * Responsible for managing brush color, brush size, and showing/hiding dialogs.
- *
- * TODO: Create the model. Maybe make a pen model &/or a canvas model that this updates.
  */
 class DrawingViewModel : ViewModel() {
-    // LiveData for brush color
-    private val _brushColor = MutableLiveData<Int>()
-    val brushColor: LiveData<Int>
-        get() = _brushColor
+    // LiveData for brush
+    private val _brush = MutableLiveData<Brush>()
+    val brush: LiveData<Brush>
+        get() = _brush
 
-    // LiveData for brush size
-    private val _brushSize = MutableLiveData<Float>()
-    val brushSize: LiveData<Float>
-        get() = _brushSize
-
-    // LiveData for shape
-    private val _shape = MutableLiveData<Boolean>()
-    val shape: LiveData<Boolean>
-        get() = _shape
+    // LiveData to handle color picker dialog visibility
+    private val _showColorPickerDialog = MutableLiveData<Boolean>()
+    val showColorPickerDialog: LiveData<Boolean>
+        get() = _showColorPickerDialog
 
     // LiveData for showing/hiding shapes dialog
     private val _showShapesDialog = MutableLiveData<Boolean>()
@@ -38,23 +32,55 @@ class DrawingViewModel : ViewModel() {
     val showSaveLoadDialog: LiveData<Boolean>
         get() = _showSaveLoadDialog
 
+    // LiveData for storing the drawing
+    private val _drawing = MutableLiveData<Drawing>()
+    val drawing: LiveData<Drawing>
+        get() = _drawing
+
     // Initialize default values
     init {
-        // Initialize default values
-        _brushColor.value = Color.BLACK
-        _brushSize.value = 5f
-        _shape.value = false
+        // Initialize default brush
+        _brush.value = Brush()
+        // Initialize alert dialog screens
         _showShapesDialog.value = false
         _showSaveLoadDialog.value = false
+        // Initialize the drawing data
+        _drawing.value = Drawing()
     }
 
+    /**
+     * Adds a new path to the current drawing.
+     * @param path The path to be added.
+     * @param color The color of the path.
+     * @param size The size of the path.
+     */
+    fun addPath(path: Path, color: Int, size: Float) {
+        // Ensure the drawing data is not null
+        val currentDrawing = _drawing.value ?: return
+
+        // Add the new path to the drawing data
+        val pathData = Drawing.PathData(path, color, size)
+        currentDrawing.paths.add(pathData)
+
+        // Notify observers about the updated drawing data
+        _drawing.value = currentDrawing
+    }
+
+    /**
+     * Clears the current drawing.
+     */
+    fun clearDrawing() {
+        _drawing.value = Drawing()
+    }
 
     /**
      * Sets the brush color.
      * @param color The new color value.
      */
     fun setBrushColor(color: Int) {
-        _brushColor.value = color
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.color = color
+        _brush.value = currentBrush
     }
 
     /**
@@ -62,15 +88,19 @@ class DrawingViewModel : ViewModel() {
      * @param size The new size value.
      */
     fun setBrushSize(size: Float) {
-        _brushSize.value = size
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.size = size
+        _brush.value = currentBrush
     }
 
     /**
-     * Sets the shape.
+     * Sets the brush shape.
      * @param shape The new size value.
      */
-    fun setShape(flag: Boolean) {
-        _shape.value = flag
+    fun selectShape(shape: Brush.Shape) {
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.selectedShape = shape
+        _brush.value = currentBrush
     }
 
     /**

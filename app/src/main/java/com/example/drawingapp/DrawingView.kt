@@ -13,19 +13,11 @@ import androidx.lifecycle.Observer
  *
  * This view allows users to draw on a canvas using touch gestures.
  * It supports setting brush color and size based on the provided ViewModel.
- *
- * TODO: Should we tie this to a canvas model rather than drawing here?
  */
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
-    private lateinit var drawPath: Path
-    private lateinit var drawRect: Rect
     private lateinit var drawPaint: Paint
-    private lateinit var canvasPaint: Paint
-    private lateinit var canvasBitmap: Bitmap
-    private lateinit var drawCanvas: Canvas
-    private var viewModel: DrawingViewModel? = null
-    private var isRect: Boolean = false
+    private lateinit var viewModel: DrawingViewModel
 
     init {
         setupDrawing()
@@ -35,25 +27,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
      * Setup the drawing components.
      */
     private fun setupDrawing() {
-        drawPath = Path()
-        drawRect = Rect()
         drawPaint = Paint().apply {
             isAntiAlias = true
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
-        drawPaint.style = Paint.Style.STROKE
-        canvasPaint = Paint(Paint.DITHER_FLAG)
-    }
-
-    /**
-     * Called when the size of the view changes.
-     */
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        drawCanvas = Canvas(canvasBitmap)
     }
 
     /**
@@ -61,68 +40,92 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawBitmap(canvasBitmap, 0f, 0f, canvasPaint)
-        drawCanvas.drawPath(drawPath, drawPaint)
+        val drawing = viewModel.drawing.value
+
+        drawing?.paths?.forEach { pathData ->
+            drawPaint.color = pathData.color
+            drawPaint.strokeWidth = pathData.size
+            canvas.drawPath(pathData.path, drawPaint)
+        }
     }
+
 
     /**
      * Handles touch events for drawing.
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val touchX = event?.x
-        val touchY = event?.y
         when (event?.action) {
-            MotionEvent.ACTION_DOWN -> {
-                if (isRect) {
-                    drawRect.left = touchX!!.toInt()
-                    drawRect.top = touchY!!.toInt()
-                } else {
-                    drawPath.moveTo(touchX!!, touchY!!)
-                }
+            MotionEvent.ACTION_DOWN -> {    // user touches the screen
+                val newPath = Path()
+                newPath.moveTo(event.x, event.y)
+                viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
             }
-            MotionEvent.ACTION_MOVE -> {
-                if (!isRect) {
-                    drawPath.lineTo(touchX!!, touchY!!)
-                }
+            MotionEvent.ACTION_MOVE -> {    // user moves their finger
+                val drawing = viewModel.drawing.value
+                drawing?.paths?.lastOrNull()?.path?.lineTo(event.x, event.y)
             }
-            MotionEvent.ACTION_UP -> {
-                if (isRect) {
-                    drawRect.right = touchX!!.toInt()
-                    drawRect.bottom = touchY!!.toInt()
-                    drawCanvas.drawRect(drawRect, drawPaint)
-                } else {
-                    drawCanvas.drawPath(drawPath, drawPaint)
-                    drawPath.reset()
-                }
+            MotionEvent.ACTION_UP -> {      // user lifts their finger
+                // Handle ACTION_UP if needed
             }
-            else -> return false
         }
         invalidate()
         return true
     }
 
     /**
-     * Sets the ViewModel for updating brush color and size.
+     * Draws a predefined shape on the canvas.
+     *
+     * TODO: implement shapes. The example below is a star
      */
-    fun setViewModel(viewModel: DrawingViewModel, lifecycleOwner: LifecycleOwner) {
-        this.viewModel = viewModel
-        this.viewModel?.brushColor?.observe(lifecycleOwner, Observer { color ->
-            drawPaint.color = color
-        })
-        this.viewModel?.brushSize?.observe(lifecycleOwner, Observer { size ->
-            drawPaint.strokeWidth = size
-        })
-        this.viewModel?.shape?.observe(lifecycleOwner, Observer { selected ->
-            isRect = selected
-        })
+    private fun drawShape(shape: Brush.Shape, path: Path, size: Float) {
+        val color = viewModel.brush.value?.color ?: Color.BLACK // Default to black if color is not available
+        val brushSize = viewModel.brush.value?.size ?: 5f // Default size if size is not available
 
+        val newPath = Path(path) // Create a copy of the provided path
+        val bounds = RectF()
+        newPath.computeBounds(bounds, true)
+
+        val cx = bounds.centerX()
+        val cy = bounds.centerY()
+        val radius = size / 2
+        val angleStep = Math.toRadians(360.0 / 5)
+        val outerRadius = size / 2
+        val innerRadius = outerRadius / 2.5f
+
+        val startPoint = PointF(
+            cx + radius * Math.cos(-Math.PI / 2).toFloat(),
+            cy + radius * Math.sin(-Math.PI / 2).toFloat()
+        )
+        newPath.moveTo(startPoint.x, startPoint.y)
+
+        for (i in 1 until 5) {
+            val angle = angleStep * i
+            val outerPoint = PointF(
+                cx + outerRadius * Math.cos(angle - Math.PI / 2).toFloat(),
+                cy + outerRadius * Math.sin(angle - Math.PI / 2).toFloat()
+            )
+            newPath.lineTo(outerPoint.x, outerPoint.y)
+
+            val innerPoint = PointF(
+                cx + innerRadius * Math.cos(angle - Math.PI / 2 + angleStep / 2).toFloat(),
+                cy + innerRadius * Math.sin(angle - Math.PI / 2 + angleStep / 2).toFloat()
+            )
+            newPath.lineTo(innerPoint.x, innerPoint.y)
+        }
+
+        newPath.close()
+        viewModel.addPath(newPath, color, brushSize)
     }
 
     /**
-     * Clears the drawing canvas.
+     * Sets the ViewModel associated with this DrawingView.
      */
-    fun clearDrawing() {
-        drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
-        invalidate()
+    fun setViewModel(viewModel: DrawingViewModel, lifecycleOwner: LifecycleOwner) {
+        this.viewModel = viewModel
+        viewModel.brush.observe(lifecycleOwner, Observer { brush ->
+            // Update paint properties when brush changes
+            drawPaint.color = brush.color
+            drawPaint.strokeWidth = brush.size
+        })
     }
 }
