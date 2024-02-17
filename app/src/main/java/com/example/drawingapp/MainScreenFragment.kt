@@ -29,6 +29,7 @@ class MainScreenFragment : Fragment() {
         val viewModel : DrawingViewModel by activityViewModels<DrawingViewModel>()
 
         binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
+            viewModel.clearDrawing()
             viewModel.isNewDrawing(true)
             findNavController().navigate(R.id.AddDrawingClicked)
         }

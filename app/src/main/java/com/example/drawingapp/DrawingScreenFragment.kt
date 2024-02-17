@@ -48,9 +48,11 @@ class DrawingScreenFragment : Fragment() {
         // Set the color button listener to show a color wheel and close when a color is pressed
         binding.btnColor.setOnClickListener{
             binding.colorPickerView.visibility = View.VISIBLE
+            binding.drawingView.visibility = View.GONE
             binding.colorPickerView.addOnColorChangedListener { selectedColor ->
                 viewModel.setBrushColor(selectedColor)
                 binding.colorPickerView.visibility = View.GONE
+                binding.drawingView.visibility = View.VISIBLE
             }
 
             // Removes other views
@@ -67,6 +69,7 @@ class DrawingScreenFragment : Fragment() {
             }
 
             // Removes other views
+            binding.drawingView.visibility = View.VISIBLE
             binding.colorPickerView.visibility = View.GONE
             binding.ShapeLayout.visibility = View.GONE
         }
@@ -86,6 +89,7 @@ class DrawingScreenFragment : Fragment() {
 
             binding.colorPickerView.visibility = View.GONE
             binding.SizeLayout.visibility = View.GONE
+            binding.drawingView.visibility = View.VISIBLE
         }
 
         // Removes other views
@@ -101,16 +105,6 @@ class DrawingScreenFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    /**
-     * When this view is destroyed, either from a future back button or by sliding left,
-     * we want to save the current drawing.
-     */
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.saveCurrentDrawing()
-
     }
 
     /**
