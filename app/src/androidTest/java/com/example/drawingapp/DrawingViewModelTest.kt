@@ -59,10 +59,10 @@ class DrawingViewModelTest {
         viewModel.addPath(path, color, size)
         val drawing = viewModel.drawing
 
-        assertEquals(1, drawing.paths.size)
-        assertEquals(path, drawing.paths[0].path)
-        assertEquals(color, drawing.paths[0].color)
-        assertEquals(size, drawing.paths[0].size)
+        assertEquals(1, drawing.value?.paths?.size)
+        assertEquals(path, drawing.value?.paths?.get(0)?.path)
+        assertEquals(color, drawing.value?.paths?.get(0)?.color)
+        assertEquals(size, drawing.value?.paths?.get(0)?.size)
     }
 
     @Test
@@ -74,6 +74,6 @@ class DrawingViewModelTest {
         viewModel.clearDrawing()
         val drawing = viewModel.drawing
 
-        assertEquals(0, drawing.paths.size)
+        assertEquals(0,  drawing.value?.paths?.size)
     }
 }
