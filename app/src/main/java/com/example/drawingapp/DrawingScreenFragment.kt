@@ -40,6 +40,9 @@ class DrawingScreenFragment : Fragment() {
         // Add the drawing screen/view the view model
         val drawingView = binding.drawingView
         drawingView.setViewModel(viewModel, viewLifecycleOwner)
+        drawingView.setIsDrawing(true)
+
+
 
         // Implement logic for handling navbar interactions
         // Set the color button listener to show a color wheel and close when a color is pressed
@@ -98,6 +101,12 @@ class DrawingScreenFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.saveCurrentDrawing()
+
     }
 
     /**

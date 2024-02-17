@@ -22,6 +22,9 @@
         <action
             android:id="@+id/AddDrawingClicked"
             app:destination="@id/drawingScreenFragment" />
+        <action
+            android:id="@+id/selectDrawing"
+            app:destination="@id/drawingScreenFragment" />
     </fragment>
     <fragment
         android:id="@+id/drawingScreenFragment"

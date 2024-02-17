@@ -13,7 +13,7 @@ import androidx.lifecycle.MutableLiveData
  */
 class DrawingViewModel : ViewModel() {
     // LiveData for brush
-    private val _brush = MutableLiveData<Brush>()
+    private var _brush = MutableLiveData<Brush>()
     val brush: LiveData<Brush>
         get() = _brush
 
@@ -23,15 +23,27 @@ class DrawingViewModel : ViewModel() {
         get() = _showSaveLoadDialog
 
     // LiveData for storing the drawing
-    private val _drawing = MutableLiveData<Drawing>()
-    val drawing: LiveData<Drawing>
+    private var _drawing = Drawing()
+    val drawing: Drawing
         get() = _drawing
+
+    // LiveData for all stored drawings
+    private val _drawingList = MutableLiveData(
+        mutableListOf(_drawing)
+    )
+
+    val drawingList = _drawingList as LiveData<out List<Drawing>>
+
+    var isFirstDrawing = true
+
+
 
     // Initialize default values
     init {
         _brush.value = Brush()
+        // Initialize alert dialog screens
         _showSaveLoadDialog.value = false
-        _drawing.value = Drawing()
+        _drawing = Drawing()
     }
 
     /**
@@ -41,21 +53,35 @@ class DrawingViewModel : ViewModel() {
      * @param size The size of the path.
      */
     fun addPath(path: Path, color: Int, size: Float) {
-        val currentDrawing = _drawing.value ?: return
+        // Ensure the drawing data is not null
+        val currentDrawing = _drawing ?: return
 
         // Add the new path to the drawing data
         val pathData = Drawing.PathData(path, color, size)
         currentDrawing.paths.add(pathData)
 
         // Notify observers about the updated drawing data
-        _drawing.value = currentDrawing
+        _drawing = currentDrawing
     }
 
     /**
      * Clears the current drawing.
      */
     fun clearDrawing() {
-        _drawing.value = Drawing()
+        _drawing = Drawing()
+    }
+
+    /**
+     *
+     */
+    fun saveCurrentDrawing() {
+        if (isFirstDrawing) {
+            isFirstDrawing = false
+            _drawingList.value?.removeAt(0)
+        }
+        _drawingList.value?.add(_drawing)
+        _drawingList.value = _drawingList.value
+        clearDrawing()
     }
 
     /**
@@ -63,9 +89,9 @@ class DrawingViewModel : ViewModel() {
      * @param color The new color value.
      */
     fun setBrushColor(color: Int) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.color = color
-        _brush.value = currentBrush
+        val currentBrush = _brush
+        currentBrush.value?.color = color
+        _brush = currentBrush
     }
 
     /**
@@ -73,9 +99,9 @@ class DrawingViewModel : ViewModel() {
      * @param size The new size value.
      */
     fun setBrushSize(size: Float) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.size = size
-        _brush.value = currentBrush
+        val currentBrush = _brush
+        currentBrush.value?.size = size
+        _brush = currentBrush
     }
 
     /**
@@ -83,9 +109,16 @@ class DrawingViewModel : ViewModel() {
      * @param shape The new shape value.
      */
     fun selectShape(shape: Brush.Shape) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.selectedShape = shape
-        _brush.value = currentBrush
+        val currentBrush = _brush
+        currentBrush.value?.selectedShape = shape
+        _brush = currentBrush
+    }
+
+    /**
+     *
+     */
+    fun setDrawing(drawing: Drawing) {
+        _drawing = drawing
     }
 
     /**

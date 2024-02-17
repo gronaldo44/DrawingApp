@@ -15,5 +15,5 @@ class Drawing {
     data class PathData(val path: Path, val color: Int, val size: Float)
 
     // List of path data representing the drawing
-    val paths = mutableListOf<PathData>()
+    val paths = ArrayList<PathData>()
 }
