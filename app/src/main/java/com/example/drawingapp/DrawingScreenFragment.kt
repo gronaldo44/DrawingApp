@@ -103,6 +103,10 @@ class DrawingScreenFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * When this view is destroyed, either from a future back button or by sliding left,
+     * we want to save the current drawing.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.saveCurrentDrawing()

@@ -32,10 +32,13 @@ class DrawingViewModel : ViewModel() {
         mutableListOf(_drawing)
     )
 
+    //The list used for the recyclerview
     val drawingList = _drawingList as LiveData<out List<Drawing>>
 
+    //Set to true if the drawing is the first drawing to be stored.
     var isFirstDrawing = true
 
+    //Set to true if the drawing is a new drawing.
     var isNewDrawing = true
 
 
@@ -74,10 +77,14 @@ class DrawingViewModel : ViewModel() {
     }
 
     /**
-     *
+     * Saves the current drawing
+     * If the drawing is edited, it will be edited correctly without adding it to
+     * the list. Only add to the list if the drawing didn't exist before.
      */
     fun saveCurrentDrawing() {
         if (isFirstDrawing) {
+            //There is a fake empty drawing panel in the recycler view, so remove that
+            //fake first before placing the first one in.
             isFirstDrawing = false
             _drawingList.value?.removeAt(0)
             _drawingList.value?.add(_drawing)
@@ -120,7 +127,8 @@ class DrawingViewModel : ViewModel() {
     }
 
     /**
-     *
+     * This sets the drawing to the specified drawing.
+     *  @param drawing The drawing that will be the focus of the DrawingView.
      */
     fun setDrawing(drawing: Drawing) {
         _drawing = drawing
@@ -140,6 +148,11 @@ class DrawingViewModel : ViewModel() {
         _showSaveLoadDialog.value = false
     }
 
+    /**
+     * Sets the isNewDrawing variable.
+     * This is so that the drawing does not get added if the user is only editing a drawing.
+     * @param isNew True if the drawing is new, false otherwise.
+     */
     fun isNewDrawing(isNew : Boolean) {
         isNewDrawing = isNew
     }

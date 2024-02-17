@@ -166,13 +166,32 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
      */
     fun setViewModel(viewModel: DrawingViewModel, lifecycleOwner: LifecycleOwner) {
         this.viewModel = viewModel
+        viewModel.brush.observe(lifecycleOwner, Observer { brush ->
+            // Update paint properties when brush changes
+            drawPaint.color = brush.color
+            drawPaint.strokeWidth = brush.size
+            previewPaint.strokeWidth = brush.size
+        })
     }
 
+    /**
+     * This method takes in a drawing that will be displayed by the view.
+     * This is used by the recycler view to show old drawings, rather than the current
+     * drawing stored in the viewModel.
+     *
+     * @param drawing The drawing to be displayed in the recycler view.
+     */
     fun specifyDrawing(drawing: Drawing) {
         specifiedDrawing = drawing
         useSpecifiedDrawing = true
     }
 
+
+    /**
+     * This method sets the variable isDrawing to true or false.
+     * It's used by the recyclerview so that users can't draw on the display views.
+     * @param isDrawing True if the view can be drawn on, false otherwise.
+     */
     fun setIsDrawing(isDrawing: Boolean) {
         this.isDrawing = isDrawing
     }
