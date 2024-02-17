@@ -24,6 +24,7 @@ class DrawingViewModel : ViewModel() {
 
     // LiveData for storing the drawing
     private var _drawing = Drawing()
+
     val drawing: Drawing
         get() = _drawing
 
@@ -101,9 +102,9 @@ class DrawingViewModel : ViewModel() {
      * @param color The new color value.
      */
     fun setBrushColor(color: Int) {
-        val currentBrush = _brush
-        currentBrush.value?.color = color
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.color = color
+        _brush.value = currentBrush
     }
 
     /**
@@ -111,9 +112,9 @@ class DrawingViewModel : ViewModel() {
      * @param size The new size value.
      */
     fun setBrushSize(size: Float) {
-        val currentBrush = _brush
-        currentBrush.value?.size = size
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.size = size
+        _brush.value = currentBrush
     }
 
     /**
@@ -121,9 +122,9 @@ class DrawingViewModel : ViewModel() {
      * @param shape The new shape value.
      */
     fun selectShape(shape: Brush.Shape) {
-        val currentBrush = _brush
-        currentBrush.value?.selectedShape = shape
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.selectedShape = shape
+        _brush.value = currentBrush
     }
 
     /**
