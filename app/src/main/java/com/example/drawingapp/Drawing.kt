@@ -4,7 +4,6 @@ import android.graphics.Path
 
 /**
  * Represents a drawing composed of paths with associated color and size information.
- * This class holds the paths drawn by the user.
  */
 class Drawing {
     /**
@@ -16,5 +15,5 @@ class Drawing {
     data class PathData(val path: Path, val color: Int, val size: Float)
 
     // List of path data representing the drawing
-    val paths = mutableListOf<PathData>()
+    val paths = ArrayList<PathData>()
 }
