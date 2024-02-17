@@ -16,12 +16,13 @@
             android:layout_height="49dp"
             android:text="MyDrawings"
             android:textSize="34sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/drawingRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="620dp" />
+            android:layout_height="620dp"
+            android:background="#D3D3D3"/>
 
         <Button
             android:id="@+id/addDrawingButton"
