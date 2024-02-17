@@ -18,9 +18,9 @@ data class Brush(
     // Enum representing different shapes for drawing
     enum class Shape {
         PATH, // Free-form path
-        STAR, // Star shape
+        TRIANGLE, // Triangle shape
         RECTANGLE, // Rectangle shape
-        TRIANGLE // Triangle shape
+        CIRCLE // Circle shape
     }
 
     // Path to store custom shapes
