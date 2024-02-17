@@ -29,9 +29,8 @@ class MainScreenFragment : Fragment() {
         val viewModel : DrawingViewModel by activityViewModels<DrawingViewModel>()
 
         binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
-            viewModel.clearDrawing()
+            viewModel.resetModel()
             viewModel.isNewDrawing(true)
-            viewModel.clearDrawing()
             findNavController().navigate(R.id.AddDrawingClicked)
         }
 
@@ -39,6 +38,7 @@ class MainScreenFragment : Fragment() {
             setItemViewCacheSize(0)
             layoutManager = LinearLayoutManager(this@MainScreenFragment.context)
             adapter = DrawingAdapter(listOf(), viewModel, viewLifecycleOwner) {
+                viewModel.resetModel()
                 viewModel.setDrawing(it)
                 viewModel.isNewDrawing(false)
                 findNavController().navigate(R.id.selectDrawing)

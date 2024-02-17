@@ -148,4 +148,13 @@ class DrawingViewModel : ViewModel() {
     fun isNewDrawing(isNew : Boolean) {
         isNewDrawing = isNew
     }
+
+    fun resetBrush(){
+        _brush.value = Brush()
+    }
+
+    fun resetModel(){
+        resetBrush()
+        clearDrawing()
+    }
 }
