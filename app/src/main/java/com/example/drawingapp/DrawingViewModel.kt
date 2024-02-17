@@ -1,7 +1,5 @@
 package com.example.drawingapp
 
-import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
@@ -23,14 +21,14 @@ class DrawingViewModel : ViewModel() {
         get() = _showSaveLoadDialog
 
     // LiveData for storing the drawing
-    private var _drawing = Drawing()
+    private var _drawing = MutableLiveData<Drawing>()
 
-    val drawing: Drawing
+    val drawing: LiveData<Drawing>
         get() = _drawing
 
     // LiveData for all stored drawings
     private val _drawingList = MutableLiveData(
-        mutableListOf(_drawing)
+        mutableListOf(Drawing())
     )
 
     //The list used for the recyclerview
@@ -49,7 +47,7 @@ class DrawingViewModel : ViewModel() {
         _brush.value = Brush()
         // Initialize alert dialog screens
         _showSaveLoadDialog.value = false
-        _drawing = Drawing()
+        _drawing.value = Drawing()
     }
 
     /**
@@ -60,21 +58,21 @@ class DrawingViewModel : ViewModel() {
      */
     fun addPath(path: Path, color: Int, size: Float) {
         // Ensure the drawing data is not null
-        val currentDrawing = _drawing ?: return
+        val currentDrawing = _drawing.value ?: return
 
         // Add the new path to the drawing data
         val pathData = Drawing.PathData(path, color, size)
         currentDrawing.paths.add(pathData)
 
         // Notify observers about the updated drawing data
-        _drawing = currentDrawing
+        _drawing.value = currentDrawing
     }
 
     /**
      * Clears the current drawing.
      */
     fun clearDrawing() {
-        _drawing = Drawing()
+        _drawing.value = Drawing()
     }
 
     /**
@@ -88,10 +86,10 @@ class DrawingViewModel : ViewModel() {
             //fake first before placing the first one in.
             isFirstDrawing = false
             _drawingList.value?.removeAt(0)
-            _drawingList.value?.add(_drawing)
+            _drawingList.value?.add(_drawing.value!!)
         }
         else if (isNewDrawing){
-            _drawingList.value?.add(_drawing)
+            _drawingList.value?.add(_drawing.value!!)
         }
         _drawingList.value = _drawingList.value
         clearDrawing()
@@ -132,14 +130,7 @@ class DrawingViewModel : ViewModel() {
      *  @param drawing The drawing that will be the focus of the DrawingView.
      */
     fun setDrawing(drawing: Drawing) {
-        _drawing = drawing
-    }
-
-    /**
-     * Shows the save/load dialog.
-     */
-    fun showSaveLoadDialog() {
-        _showSaveLoadDialog.value = true
+        _drawing.value = drawing
     }
 
     /**

@@ -58,13 +58,13 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        var drawing = viewModel.drawing
+        var drawing = viewModel.drawing.value
         if (useSpecifiedDrawing) {
             drawing = specifiedDrawing
         }
 
         // Draw each path in the list
-        drawing.paths.forEach { pathData ->
+        drawing?.paths?.forEach { pathData ->
             drawPaint.color = pathData.color
             drawPaint.strokeWidth = pathData.size
             canvas.drawPath(pathData.path, drawPaint)
@@ -118,8 +118,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
             }
             MotionEvent.ACTION_MOVE -> { // When the mouse is moved when clicked
                 if (curShape == Brush.Shape.PATH){ // When the shape is a path, add a line from the previous location to the current
-                    val drawing = viewModel.drawing
-                    drawing.paths.lastOrNull()?.path?.lineTo(event.x, event.y)
+                    val drawing = viewModel.drawing.value
+                    drawing?.paths?.lastOrNull()?.path?.lineTo(event.x, event.y)
                 }
                 if (curShape != Brush.Shape.PATH && isDrawingShapes) { // When the shape is not a path update the temp variables and redraw to activate the preview
                     tempEndX = event.x

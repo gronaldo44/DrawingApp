@@ -29,6 +29,10 @@
     <fragment
         android:id="@+id/drawingScreenFragment"
         android:name="com.example.drawingapp.DrawingScreenFragment"
-        android:label="DrawingScreenFragment" />
+        android:label="DrawingScreenFragment" >
+        <action
+            android:id="@+id/onSaved"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
 
 </navigation>

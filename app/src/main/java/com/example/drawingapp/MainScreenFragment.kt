@@ -31,6 +31,7 @@ class MainScreenFragment : Fragment() {
         binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
             viewModel.clearDrawing()
             viewModel.isNewDrawing(true)
+            viewModel.clearDrawing()
             findNavController().navigate(R.id.AddDrawingClicked)
         }
 

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 
 
 /**
@@ -92,9 +93,9 @@ class DrawingScreenFragment : Fragment() {
             binding.drawingView.visibility = View.VISIBLE
         }
 
-        // Removes other views
         binding.btnSaveLoad.setOnClickListener {
-            viewModel.showSaveLoadDialog()
+            viewModel.saveCurrentDrawing()
+            findNavController().navigate(R.id.onSaved)
         }
 
         viewModel.showSaveLoadDialog.observe(viewLifecycleOwner) { showSaveLoadDialog ->
