@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 
 
 /**
@@ -88,9 +89,9 @@ class DrawingScreenFragment : Fragment() {
             binding.SizeLayout.visibility = View.GONE
         }
 
-        // Removes other views
         binding.btnSaveLoad.setOnClickListener {
-            viewModel.showSaveLoadDialog()
+            viewModel.saveCurrentDrawing()
+            findNavController().navigate(R.id.onSaved)
         }
 
         viewModel.showSaveLoadDialog.observe(viewLifecycleOwner) { showSaveLoadDialog ->
@@ -103,15 +104,6 @@ class DrawingScreenFragment : Fragment() {
         return binding.root
     }
 
-    /**
-     * When this view is destroyed, either from a future back button or by sliding left,
-     * we want to save the current drawing.
-     */
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.saveCurrentDrawing()
-
-    }
 
     /**
      * Displays the save/load dialog.

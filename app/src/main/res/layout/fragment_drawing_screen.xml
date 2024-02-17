@@ -163,7 +163,6 @@
                 android:layout_marginStart="3dp"
                 android:layout_marginEnd="3dp"
                 android:gravity="center"
-                android:onClick="@{() -> viewModel.showSaveLoadDialog()}"
                 android:text="Save Load" />
 
         </LinearLayout>

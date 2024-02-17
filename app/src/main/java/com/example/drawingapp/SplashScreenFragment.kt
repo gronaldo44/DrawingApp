@@ -1,7 +1,6 @@
 package com.example.drawingapp
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
