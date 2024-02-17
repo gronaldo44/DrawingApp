@@ -21,10 +21,8 @@ class DrawingScreenFragment : Fragment() {
     private lateinit var viewModel: DrawingViewModel
 
     /**
-     * Inflates the layout for the fragment and sets up data binding.
-     * Initializes ViewModel and binds it to the layout.
-     * Sets up click listeners for navbar buttons.
-     * Observes changes in LiveData to show dialogs when needed.
+     * Initializes the view model and adds click listeners to the button
+     * Sets up a drawing view that the user draws on
      */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,30 +32,44 @@ class DrawingScreenFragment : Fragment() {
             inflater, R.layout.fragment_drawing_screen, container, false
         )
 
-        viewModel = ViewModelProvider(requireActivity()).get(DrawingViewModel::class.java)
+        // Sets the view model and the lifecycle
+        viewModel = ViewModelProvider(requireActivity())[DrawingViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
+        // Add the drawing screen/view the view model
         val drawingView = binding.drawingView
         drawingView.setViewModel(viewModel, viewLifecycleOwner)
 
         // Implement logic for handling navbar interactions
+        // Set the color button listener to show a color wheel and close when a color is pressed
         binding.btnColor.setOnClickListener{
             binding.colorPickerView.visibility = View.VISIBLE
             binding.colorPickerView.addOnColorChangedListener { selectedColor ->
                 viewModel.setBrushColor(selectedColor)
                 binding.colorPickerView.visibility = View.GONE
             }
+
+            // Removes other views
+            binding.SizeLayout.visibility = View.GONE
+            binding.ShapeLayout.visibility = View.GONE
         }
 
+        // Set the size button listener to show a slider and have the user submit a size to close
         binding.btnSize.setOnClickListener{
             binding.SizeLayout.visibility = View.VISIBLE
             binding.seekButton.setOnClickListener{
                 viewModel.setBrushSize(binding.seekBar.progress.toFloat())
                 binding.SizeLayout.visibility = View.GONE
             }
+
+            // Removes other views
+            binding.colorPickerView.visibility = View.GONE
+            binding.ShapeLayout.visibility = View.GONE
         }
 
+        // Sets the shape button to display the four shapes that the user can pick from
+        // When a shape is selected all of the button are removed
         binding.btnShapes.setOnClickListener {
             binding.ShapeLayout.visibility = View.VISIBLE
             binding.pathButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.PATH)
@@ -68,8 +80,12 @@ class DrawingScreenFragment : Fragment() {
                 binding.ShapeLayout.visibility = View.GONE}
             binding.triButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.TRIANGLE)
                 binding.ShapeLayout.visibility = View.GONE}
+
+            binding.colorPickerView.visibility = View.GONE
+            binding.SizeLayout.visibility = View.GONE
         }
 
+        // Removes other views
         binding.btnSaveLoad.setOnClickListener {
             viewModel.showSaveLoadDialog()
         }
@@ -82,15 +98,6 @@ class DrawingScreenFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    /**
-     * Displays the shapes dialog where users can choose a shape to enter into their drawing.
-     * TODO: Implement logic to show the shapes dialog.
-     */
-    private fun showShapesDialog() {
-        // Placeholder:
-        Toast.makeText(requireContext(), "Shapes Dialog", Toast.LENGTH_SHORT).show()
     }
 
     /**

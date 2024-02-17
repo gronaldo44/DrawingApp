@@ -5,10 +5,6 @@ import android.graphics.Path
 
 /**
  * Represents the properties of a brush used for drawing.
- * This class stores information such as color, size, and selected shape.
- * It also provides an enum for different shapes and a property to store custom shapes.
- *
- * TODO: implement and make using other shapes than PATH possible
  */
 data class Brush(
     var color: Int = Color.BLACK, // Default color for the brush
@@ -17,12 +13,10 @@ data class Brush(
 ) {
     // Enum representing different shapes for drawing
     enum class Shape {
-        PATH, // Free-form path
-        TRIANGLE, // Triangle shape
-        RECTANGLE, // Rectangle shape
-        CIRCLE // Circle shape
+        PATH,
+        TRIANGLE,
+        RECTANGLE,
+        CIRCLE
     }
 
-    // Path to store custom shapes
-    var customPath: Path? = null
 }

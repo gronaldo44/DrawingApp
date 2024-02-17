@@ -17,16 +17,6 @@ class DrawingViewModel : ViewModel() {
     val brush: LiveData<Brush>
         get() = _brush
 
-    // LiveData to handle color picker dialog visibility
-    private val _showColorPickerDialog = MutableLiveData<Boolean>()
-    val showColorPickerDialog: LiveData<Boolean>
-        get() = _showColorPickerDialog
-
-    // LiveData for showing/hiding shapes dialog
-    private val _showShapesDialog = MutableLiveData<Boolean>()
-    val showShapesDialog: LiveData<Boolean>
-        get() = _showShapesDialog
-
     // LiveData for showing/hiding save/load dialog
     private val _showSaveLoadDialog = MutableLiveData<Boolean>()
     val showSaveLoadDialog: LiveData<Boolean>
@@ -39,12 +29,8 @@ class DrawingViewModel : ViewModel() {
 
     // Initialize default values
     init {
-        // Initialize default brush
         _brush.value = Brush()
-        // Initialize alert dialog screens
-        _showShapesDialog.value = false
         _showSaveLoadDialog.value = false
-        // Initialize the drawing data
         _drawing.value = Drawing()
     }
 
@@ -55,7 +41,6 @@ class DrawingViewModel : ViewModel() {
      * @param size The size of the path.
      */
     fun addPath(path: Path, color: Int, size: Float) {
-        // Ensure the drawing data is not null
         val currentDrawing = _drawing.value ?: return
 
         // Add the new path to the drawing data

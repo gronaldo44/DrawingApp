@@ -4,7 +4,6 @@ import android.graphics.Path
 
 /**
  * Represents a drawing composed of paths with associated color and size information.
- * This class holds the paths drawn by the user.
  */
 class Drawing {
     /**
