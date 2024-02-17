@@ -36,6 +36,8 @@ class DrawingViewModel : ViewModel() {
 
     var isFirstDrawing = true
 
+    var isNewDrawing = true
+
 
 
     // Initialize default values
@@ -78,8 +80,11 @@ class DrawingViewModel : ViewModel() {
         if (isFirstDrawing) {
             isFirstDrawing = false
             _drawingList.value?.removeAt(0)
+            _drawingList.value?.add(_drawing)
         }
-        _drawingList.value?.add(_drawing)
+        else if (isNewDrawing){
+            _drawingList.value?.add(_drawing)
+        }
         _drawingList.value = _drawingList.value
         clearDrawing()
     }
@@ -133,5 +138,9 @@ class DrawingViewModel : ViewModel() {
      */
     fun saveLoadDialogShown() {
         _showSaveLoadDialog.value = false
+    }
+
+    fun isNewDrawing(isNew : Boolean) {
+        isNewDrawing = isNew
     }
 }
