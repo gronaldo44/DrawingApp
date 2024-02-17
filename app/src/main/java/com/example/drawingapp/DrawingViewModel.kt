@@ -104,20 +104,6 @@ class DrawingViewModel : ViewModel() {
     }
 
     /**
-     * Shows the shapes dialog.
-     */
-    fun showShapesDialog() {
-        _showShapesDialog.value = true
-    }
-
-    /**
-     * Marks the shapes dialog as shown.
-     */
-    fun shapesDialogShown() {
-        _showShapesDialog.value = false
-    }
-
-    /**
      * Shows the save/load dialog.
      */
     fun showSaveLoadDialog() {

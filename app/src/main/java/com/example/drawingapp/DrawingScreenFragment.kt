@@ -64,7 +64,7 @@ class DrawingScreenFragment : Fragment() {
                 binding.ShapeLayout.visibility = View.GONE}
             binding.rectButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.RECTANGLE)
                 binding.ShapeLayout.visibility = View.GONE}
-            binding.starButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.STAR)
+            binding.circleButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.CIRCLE)
                 binding.ShapeLayout.visibility = View.GONE}
             binding.triButton.setOnClickListener{ viewModel.selectShape(Brush.Shape.TRIANGLE)
                 binding.ShapeLayout.visibility = View.GONE}
@@ -72,12 +72,6 @@ class DrawingScreenFragment : Fragment() {
 
         binding.btnSaveLoad.setOnClickListener {
             viewModel.showSaveLoadDialog()
-        }
-
-        viewModel.showShapesDialog.observe(viewLifecycleOwner) { showShapesDialog ->
-            if (showShapesDialog) {
-
-            }
         }
 
         viewModel.showSaveLoadDialog.observe(viewLifecycleOwner) { showSaveLoadDialog ->

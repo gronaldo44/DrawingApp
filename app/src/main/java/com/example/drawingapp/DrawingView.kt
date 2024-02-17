@@ -1,5 +1,6 @@
 package com.example.drawingapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -7,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import kotlin.math.hypot
 
 /**
  * Custom View for drawing functionality.
@@ -18,6 +20,16 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     private lateinit var drawPaint: Paint
     private lateinit var viewModel: DrawingViewModel
+    private var startX = 0f
+    private var startY = 0f
+    var tempEndX: Float = 0f
+    var tempEndY: Float = 0f
+    var isDrawing: Boolean = false
+    val previewPaint = Paint().apply {
+        color = Color.LTGRAY // Example color for the preview
+        style = Paint.Style.STROKE// Draw only the outline
+        strokeWidth = 3f // Example stroke width
+    }
 
     init {
         setupDrawing()
@@ -38,6 +50,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     /**
      * Draws the canvas and paths on the view.
      */
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val drawing = viewModel.drawing.value
@@ -47,74 +60,98 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
             drawPaint.strokeWidth = pathData.size
             canvas.drawPath(pathData.path, drawPaint)
         }
+
+        if (((viewModel.brush.value?.selectedShape ?: Brush.Shape.PATH) == Brush.Shape.RECTANGLE) && isDrawing) {
+            canvas.drawRect(startX, startY, tempEndX, tempEndY, previewPaint)
+        }
+        if (isDrawing && viewModel.brush.value?.selectedShape == Brush.Shape.TRIANGLE) {
+            val topX = (startX + tempEndX) / 2
+            val previewPath = Path().apply {
+                moveTo(topX, startY)
+                lineTo(startX, tempEndY)
+                lineTo(tempEndX, tempEndY)
+                close()
+            }
+            canvas.drawPath(previewPath, previewPaint)
+        }
+        if (isDrawing && viewModel.brush.value?.selectedShape == Brush.Shape.CIRCLE) {
+            val radius = hypot((tempEndX - startX).toDouble(), (tempEndY - startY).toDouble()).toFloat()
+            canvas.drawCircle(startX, startY, radius, previewPaint)
+        }
     }
 
 
     /**
      * Handles touch events for drawing.
      */
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val curShape = viewModel.brush.value?.selectedShape ?: Brush.Shape.PATH
         when (event?.action) {
-            MotionEvent.ACTION_DOWN -> {    // user touches the screen
-                val newPath = Path()
-                newPath.moveTo(event.x, event.y)
+            MotionEvent.ACTION_DOWN -> {
+                startX = event.x
+                startY = event.y
+                if (curShape == Brush.Shape.PATH){
+                    val newPath = Path()
+                    newPath.moveTo(event.x, event.y)
+                    viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
+                }
+                if (curShape != Brush.Shape.PATH) {
+                    isDrawing = true
+                    tempEndX = event.x
+                    tempEndY = event.y
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (curShape == Brush.Shape.PATH){
+                    val drawing = viewModel.drawing.value
+                    drawing?.paths?.lastOrNull()?.path?.lineTo(event.x, event.y)
+                }
+                if (curShape != Brush.Shape.PATH && isDrawing) {
+                    tempEndX = event.x
+                    tempEndY = event.y
+                    invalidate()
+                }
+            }
+            MotionEvent.ACTION_UP -> {
+                var newPath = Path()
+                if (curShape == Brush.Shape.RECTANGLE && isDrawing) {
+                    newPath = Path().apply {
+                        moveTo(startX, startY)
+                        lineTo(tempEndX, startY)
+                        lineTo(tempEndX, tempEndY)
+                        lineTo(startX, tempEndY)
+                        close()
+                    }
+                    viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
+                    isDrawing = false
+                    invalidate()
+                }
+                if (curShape == Brush.Shape.TRIANGLE && isDrawing) {
+                    val topX = (startX + tempEndX) / 2
+                    newPath = Path().apply {
+                        moveTo(topX, startY)
+                        lineTo(startX, tempEndY)
+                        lineTo(tempEndX, tempEndY)
+                        close()
+                    }
+                    viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
+                    isDrawing = false
+                    invalidate() // Clear preview
+                }
+                if (curShape == Brush.Shape.CIRCLE && isDrawing) {
+                    val radius = Math.hypot((tempEndX - startX).toDouble(), (tempEndY - startY).toDouble()).toFloat()
+                    newPath = Path().apply {
+                        addCircle(startX, startY, radius, Path.Direction.CW)
+                    }
+
+                }
                 viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
-            }
-            MotionEvent.ACTION_MOVE -> {    // user moves their finger
-                val drawing = viewModel.drawing.value
-                drawing?.paths?.lastOrNull()?.path?.lineTo(event.x, event.y)
-            }
-            MotionEvent.ACTION_UP -> {      // user lifts their finger
-                // Handle ACTION_UP if needed
+                isDrawing = false
             }
         }
-        invalidate()
+        invalidate() // Clear preview
         return true
-    }
-
-    /**
-     * Draws a predefined shape on the canvas.
-     *
-     * TODO: implement shapes. The example below is a star
-     */
-    private fun drawShape(shape: Brush.Shape, path: Path, size: Float) {
-        val color = viewModel.brush.value?.color ?: Color.BLACK // Default to black if color is not available
-        val brushSize = viewModel.brush.value?.size ?: 5f // Default size if size is not available
-
-        val newPath = Path(path) // Create a copy of the provided path
-        val bounds = RectF()
-        newPath.computeBounds(bounds, true)
-
-        val cx = bounds.centerX()
-        val cy = bounds.centerY()
-        val radius = size / 2
-        val angleStep = Math.toRadians(360.0 / 5)
-        val outerRadius = size / 2
-        val innerRadius = outerRadius / 2.5f
-
-        val startPoint = PointF(
-            cx + radius * Math.cos(-Math.PI / 2).toFloat(),
-            cy + radius * Math.sin(-Math.PI / 2).toFloat()
-        )
-        newPath.moveTo(startPoint.x, startPoint.y)
-
-        for (i in 1 until 5) {
-            val angle = angleStep * i
-            val outerPoint = PointF(
-                cx + outerRadius * Math.cos(angle - Math.PI / 2).toFloat(),
-                cy + outerRadius * Math.sin(angle - Math.PI / 2).toFloat()
-            )
-            newPath.lineTo(outerPoint.x, outerPoint.y)
-
-            val innerPoint = PointF(
-                cx + innerRadius * Math.cos(angle - Math.PI / 2 + angleStep / 2).toFloat(),
-                cy + innerRadius * Math.sin(angle - Math.PI / 2 + angleStep / 2).toFloat()
-            )
-            newPath.lineTo(innerPoint.x, innerPoint.y)
-        }
-
-        newPath.close()
-        viewModel.addPath(newPath, color, brushSize)
     }
 
     /**
@@ -126,6 +163,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
             // Update paint properties when brush changes
             drawPaint.color = brush.color
             drawPaint.strokeWidth = brush.size
+            previewPaint.strokeWidth = brush.size
         })
     }
 }
