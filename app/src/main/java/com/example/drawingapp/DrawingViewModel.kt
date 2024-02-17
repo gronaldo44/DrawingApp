@@ -24,6 +24,7 @@ class DrawingViewModel : ViewModel() {
 
     // LiveData for storing the drawing
     private var _drawing = Drawing()
+
     val drawing: Drawing
         get() = _drawing
 
@@ -32,9 +33,14 @@ class DrawingViewModel : ViewModel() {
         mutableListOf(_drawing)
     )
 
+    //The list used for the recyclerview
     val drawingList = _drawingList as LiveData<out List<Drawing>>
 
+    //Set to true if the drawing is the first drawing to be stored.
     var isFirstDrawing = true
+
+    //Set to true if the drawing is a new drawing.
+    var isNewDrawing = true
 
 
 
@@ -72,14 +78,21 @@ class DrawingViewModel : ViewModel() {
     }
 
     /**
-     *
+     * Saves the current drawing
+     * If the drawing is edited, it will be edited correctly without adding it to
+     * the list. Only add to the list if the drawing didn't exist before.
      */
     fun saveCurrentDrawing() {
         if (isFirstDrawing) {
+            //There is a fake empty drawing panel in the recycler view, so remove that
+            //fake first before placing the first one in.
             isFirstDrawing = false
             _drawingList.value?.removeAt(0)
+            _drawingList.value?.add(_drawing)
         }
-        _drawingList.value?.add(_drawing)
+        else if (isNewDrawing){
+            _drawingList.value?.add(_drawing)
+        }
         _drawingList.value = _drawingList.value
         clearDrawing()
     }
@@ -89,9 +102,9 @@ class DrawingViewModel : ViewModel() {
      * @param color The new color value.
      */
     fun setBrushColor(color: Int) {
-        val currentBrush = _brush
-        currentBrush.value?.color = color
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.color = color
+        _brush.value = currentBrush
     }
 
     /**
@@ -99,9 +112,9 @@ class DrawingViewModel : ViewModel() {
      * @param size The new size value.
      */
     fun setBrushSize(size: Float) {
-        val currentBrush = _brush
-        currentBrush.value?.size = size
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.size = size
+        _brush.value = currentBrush
     }
 
     /**
@@ -109,13 +122,14 @@ class DrawingViewModel : ViewModel() {
      * @param shape The new shape value.
      */
     fun selectShape(shape: Brush.Shape) {
-        val currentBrush = _brush
-        currentBrush.value?.selectedShape = shape
-        _brush = currentBrush
+        val currentBrush = _brush.value ?: Brush()
+        currentBrush.selectedShape = shape
+        _brush.value = currentBrush
     }
 
     /**
-     *
+     * This sets the drawing to the specified drawing.
+     *  @param drawing The drawing that will be the focus of the DrawingView.
      */
     fun setDrawing(drawing: Drawing) {
         _drawing = drawing
@@ -133,5 +147,14 @@ class DrawingViewModel : ViewModel() {
      */
     fun saveLoadDialogShown() {
         _showSaveLoadDialog.value = false
+    }
+
+    /**
+     * Sets the isNewDrawing variable.
+     * This is so that the drawing does not get added if the user is only editing a drawing.
+     * @param isNew True if the drawing is new, false otherwise.
+     */
+    fun isNewDrawing(isNew : Boolean) {
+        isNewDrawing = isNew
     }
 }
