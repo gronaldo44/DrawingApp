@@ -1,7 +1,6 @@
 package com.example.drawingapp
 
 import android.graphics.Color
-import android.graphics.Path
 
 /**
  * Represents the properties of a brush used for drawing.

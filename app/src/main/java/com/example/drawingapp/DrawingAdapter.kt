@@ -6,11 +6,20 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.drawingapp.databinding.DrawingItemBinding
 
+/**
+ * Adapter for displaying a list of drawings in a RecyclerView.
+ * This adapter manages the binding between the drawing data and the UI components.
+ *
+ * @property drawings The list of drawings to be displayed.
+ * @property drawingViewModel The ViewModel responsible for managing drawing data and interactions.
+ * @property lifecycle The lifecycle owner for observing LiveData in the ViewModel.
+ * @property onViewClick A callback function invoked when a drawing item is clicked.
+ */
 class DrawingAdapter(private var drawings: List<Drawing>, private var drawingViewModel: DrawingViewModel, private var lifecycle: LifecycleOwner,
                      private val onViewClick : (item: Drawing) -> Unit): RecyclerView.Adapter<DrawingAdapter.ViewHolder>() {
 
     /**
-     * A ViewHolder class.
+     * ViewHolder class for managing individual items in the RecyclerView.
      */
     inner class ViewHolder(val binding: DrawingItemBinding): RecyclerView.ViewHolder(binding.root)
 

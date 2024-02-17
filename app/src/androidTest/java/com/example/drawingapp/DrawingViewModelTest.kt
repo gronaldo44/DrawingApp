@@ -9,6 +9,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Unit tests for the DrawingViewModel class.
+ */
 @RunWith(AndroidJUnit4::class)
 class DrawingViewModelTest {
 

@@ -149,10 +149,16 @@ class DrawingViewModel : ViewModel() {
         isNewDrawing = isNew
     }
 
+    /**
+     * Resets the brush
+     */
     fun resetBrush(){
         _brush.value = Brush()
     }
 
+    /**
+     * Resets the model
+     */
     fun resetModel(){
         resetBrush()
         clearDrawing()
