@@ -47,23 +47,22 @@ class SplashScreenFragment : Fragment() {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
-                    MyComposableLand(Modifier.padding(16.dp)){
+                    ComposableSplashLand(Modifier.padding(16.dp)){
                         findNavController().navigate(R.id.closedSplashScreen)
                     }
                 }
                 else -> {
-                    MyComposablePort(Modifier.padding(16.dp)){
+                    ComposableSplashPort(Modifier.padding(16.dp)){
                         findNavController().navigate(R.id.closedSplashScreen)
                     }
                 }
             }
         }
-
         return binding.root
     }
 }
 @Composable
-fun MyComposablePort(modifier: Modifier = Modifier,
+fun ComposableSplashPort(modifier: Modifier = Modifier,
                  onClick: ()->Unit){
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -106,7 +105,7 @@ fun MyComposablePort(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun MyComposableLand(modifier: Modifier = Modifier,
+fun ComposableSplashLand(modifier: Modifier = Modifier,
                      onClick: ()->Unit){
     Row(modifier = Modifier.fillMaxSize()) {
         Column(

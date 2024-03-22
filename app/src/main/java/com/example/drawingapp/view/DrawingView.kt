@@ -19,7 +19,7 @@ import kotlin.math.hypot
  * This view allows users to draw on a canvas using touch gestures.
  * It supports setting brush color and size based on the provided ViewModel.
  */
-class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private lateinit var drawPaint: Paint
     private var viewModel = DrawingViewModel()
