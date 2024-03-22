@@ -4,6 +4,8 @@ import android.graphics.Color
 import android.graphics.Path
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.drawingapp.model.Brush
+import com.example.drawingapp.viewmodel.DrawingViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
