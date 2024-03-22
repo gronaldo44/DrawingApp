@@ -1,10 +1,12 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.databinding.DrawingItemBinding
+import com.example.drawingapp.model.Drawing
 
 /**
  * Adapter for displaying a list of drawings in a RecyclerView.

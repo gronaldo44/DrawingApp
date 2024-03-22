@@ -18,7 +18,7 @@
             android:label="@string/title_activity_main2"
             android:theme="@style/Theme.DrawingApp" />
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

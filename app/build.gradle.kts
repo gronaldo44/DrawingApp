@@ -1,6 +1,11 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+
+    //needed for automatic JSON serialization/deserialization
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    //for room
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -77,6 +82,31 @@ dependencies {
 
     // Color wheel selector
    implementation("com.github.QuadFlask:colorpicker:0.0.13")
+
+    //ROOM STUFF
+    implementation("androidx.room:room-common:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation ("com.google.code.gson:gson:2.8.8")
+
+
+    //KTOR dependencies
+    implementation("io.ktor:ktor-client-core:2.3.8")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.8")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
+    implementation("io.ktor:ktor-client-cio:2.3.8")
+    implementation("io.ktor:ktor-client-android:2.3.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+
+    //VM + JPC
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
 
     //Compose
     implementation("androidx.core:core-ktx:1.12.0")

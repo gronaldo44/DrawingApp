@@ -1,4 +1,4 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +10,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
+import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.drawingapp.R
+import com.example.drawingapp.model.Brush
 
 
 /**

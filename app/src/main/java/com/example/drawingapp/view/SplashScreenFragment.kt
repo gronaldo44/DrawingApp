@@ -1,4 +1,4 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -16,8 +16,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentSplashScreenBinding
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.drawingapp.ui.theme.DrawingAppTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Alignment
@@ -26,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.drawingapp.R
 
 /**
  * Splash Screen Fragment class. Holds a splash screen with a simple button that moves to the

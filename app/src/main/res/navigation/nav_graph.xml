@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashScreenFragment"
-        android:name="com.example.drawingapp.SplashScreenFragment"
+        android:name="com.example.drawingapp.view.SplashScreenFragment"
         android:label="fragment_splash_screen"
         tools:layout="@layout/fragment_splash_screen" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/mainScreenFragment"
-        android:name="com.example.drawingapp.MainScreenFragment"
+        android:name="com.example.drawingapp.view.MainScreenFragment"
         android:label="fragment_main_screen"
         tools:layout="@layout/fragment_main_screen" >
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/drawingScreenFragment"
-        android:name="com.example.drawingapp.DrawingScreenFragment"
+        android:name="com.example.drawingapp.view.DrawingScreenFragment"
         android:label="DrawingScreenFragment" >
         <action
             android:id="@+id/onSaved"

@@ -1,4 +1,4 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,6 +9,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.drawingapp.databinding.FragmentMainScreenBinding
 import androidx.fragment.app.activityViewModels
+import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.drawingapp.R
 
 /**
  * The Main Screen Fragment that shows the recycler view and allows to create a new drawing

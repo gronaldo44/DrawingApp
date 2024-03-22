@@ -1,9 +1,11 @@
-package com.example.drawingapp
+package com.example.drawingapp.viewmodel
 
 import android.graphics.Path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.drawingapp.model.Brush
+import com.example.drawingapp.model.Drawing
 
 /**
  * ViewModel for managing drawing properties and dialogs in the Drawing Screen.

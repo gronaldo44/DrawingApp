@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <com.example.drawingapp.DrawingView
+            <com.example.drawingapp.view.DrawingView
                 android:id="@+id/drawingView2"
                 android:layout_width="330dp"
                 android:layout_height="330dp"

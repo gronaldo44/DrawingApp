@@ -1,7 +1,8 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.drawingapp.R
 
 /**
  * Main activity for the drawing application.

@@ -1,4 +1,4 @@
-package com.example.drawingapp
+package com.example.drawingapp.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,6 +8,9 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.drawingapp.model.Brush
+import com.example.drawingapp.model.Drawing
 import kotlin.math.hypot
 
 /**
