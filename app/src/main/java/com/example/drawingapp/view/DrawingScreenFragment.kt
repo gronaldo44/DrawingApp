@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
@@ -34,22 +30,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.R
 import com.example.drawingapp.model.Brush
+import com.example.drawingapp.viewmodel.DrawingApplication
+import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import com.flask.colorpicker.ColorPickerView
+import kotlinx.coroutines.launch
 
 
 /**
@@ -59,8 +57,9 @@ import com.flask.colorpicker.ColorPickerView
  *
  */
 class DrawingScreenFragment : Fragment() {
-    private lateinit var viewModel: DrawingViewModel
     private lateinit var binding: FragmentDrawingScreenBinding
+    private lateinit var viewModel: DrawingViewModel
+    private lateinit var viewModelFactory: DrawingViewModelFactory
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,8 +69,11 @@ class DrawingScreenFragment : Fragment() {
             inflater, R.layout.fragment_drawing_screen, container, false
         )
 
-        // Sets the view model and the lifecycle
-        viewModel = ViewModelProvider(requireActivity())[DrawingViewModel::class.java]
+        // Initialize your ViewModelFactory
+        val application = requireActivity().application as DrawingApplication
+        viewModelFactory = DrawingViewModelFactory(application.repo)
+        // Initialize your ViewModel
+        viewModel = ViewModelProvider(this, viewModelFactory)[DrawingViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
@@ -80,15 +82,18 @@ class DrawingScreenFragment : Fragment() {
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableDrawingLand(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing()
-                        findNavController().navigate(R.id.onSaved)
+                        viewModel.viewModelScope.launch {
+                            viewModel.saveCurrentDrawing()
+                            findNavController().navigate(R.id.onSaved)
+                        }
                     }
                 }
 
                 else -> {
                     ComposableDrawingPort(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing()
-                        findNavController().navigate(R.id.onSaved)
+                        viewModel.viewModelScope.launch {
+                            viewModel.saveCurrentDrawing()
+                        }
                     }
                 }
             }

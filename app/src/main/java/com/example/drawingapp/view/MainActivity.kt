@@ -2,7 +2,11 @@ package com.example.drawingapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
 import com.example.drawingapp.R
+import com.example.drawingapp.viewmodel.DrawingApplication
+import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 
 /**
  * Main activity for the drawing application.
@@ -14,6 +18,8 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel: DrawingViewModel by viewModels{
+            DrawingViewModelFactory((application as DrawingApplication).repo)}
         setContentView(R.layout.activity_main)
     }
 }

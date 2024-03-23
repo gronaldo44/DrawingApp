@@ -1,48 +1,55 @@
 package com.example.drawingapp.model
 
 import android.graphics.Path
-import com.google.gson.Gson
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
-@Serializable
-@Entity(tableName = "Drawing")
 /**
- * Represents a drawing composed of paths with associated color and size information.
+ * Regular Drawing class used in the rest of the project
  */
-class Drawing {
-    @PrimaryKey(autoGenerate = true)
+data class Drawing(val paths: ArrayList<PathData>) {
     var id: Long = 0
-    val paths = ArrayList<PathData>()
+    data class PathData(val path: Path, val color: Int, val size: Float)
+}
 
-    /**
-     * Data class representing a single path with associated color and size.
-     * @property path The path drawn by the user.
-     * @property color The color of the path.
-     * @property size The size of the path.
-     */
-    @Serializable
-    data class PathData(@Contextual val path: Path, val color: Int, val size: Float) {
+// DbDrawing class for database operations (serialization of paths)
+@Entity(tableName = "Drawing")
+data class DbDrawing(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val pathDataString: String // Serialized paths (JSON representation)
+)
 
-        @Contextual
-        private val serializedPath: String = serializePath(path)
+// Converter for Path to String and vice versa
+object PathDataConverter {
+    private val gson = Gson()
 
-        /**
-         * Custom getter to retrieve the Path object.
-         */
-        fun getDeserializedPath(): Path {
-            val gson = Gson()
-            return gson.fromJson(serializedPath, Path::class.java)
-        }
+    @TypeConverter
+    fun fromPathDataList(pathDataList: ArrayList<Drawing.PathData>): String {
+        return gson.toJson(pathDataList)
+    }
 
-        /**
-         * Serialize the Path object to JSON.
-         */
-        private fun serializePath(path: Path): String {
-            val gson = Gson()
-            return gson.toJson(path)
-        }
+    @TypeConverter
+    fun toPathDataList(pathDataString: String): ArrayList<Drawing.PathData> {
+        val type = object : TypeToken<ArrayList<Drawing.PathData>>() {}.type
+        return gson.fromJson(pathDataString, type)
+    }
+}
+
+// Converter for Drawing to DbDrawing and vice versa
+object DrawingConverter {
+    private val gson = Gson()
+    @TypeConverter
+    fun fromDrawing(drawing: Drawing): DbDrawing {
+        return DbDrawing(drawing.id, Gson().toJson(drawing.paths))
+    }
+
+    @TypeConverter
+    fun toDrawing(dbDrawing: DbDrawing): Drawing {
+        val paths = Gson().fromJson(dbDrawing.pathDataString, object :
+            TypeToken<ArrayList<Drawing.PathData>>() {}.type) as ArrayList<Drawing.PathData>
+        return Drawing(paths)
     }
 }

@@ -8,9 +8,11 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
+import kotlinx.coroutines.launch
 import kotlin.math.hypot
 
 /**
@@ -22,10 +24,10 @@ import kotlin.math.hypot
 class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private lateinit var drawPaint: Paint
-    private var viewModel = DrawingViewModel()
     private var isDrawingShapes = false
+    private var viewModel: DrawingViewModel? = null    //tmp value
     private var isDrawing = false
-    private var specifiedDrawing = Drawing()
+    private var specifiedDrawing: Drawing? = null   // tmp value
     private var useSpecifiedDrawing = false
 
     // Variables used to draw the preview
@@ -61,7 +63,8 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        var drawing = viewModel.drawing.value
+
+        var drawing = viewModel?.drawing?.value
         if (useSpecifiedDrawing) {
             drawing = specifiedDrawing
         }
@@ -74,10 +77,10 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         }
 
         // Handles the grey preview of each shape
-        if (((viewModel.brush.value?.selectedShape ?: Brush.Shape.PATH) == Brush.Shape.RECTANGLE) && isDrawingShapes) { // Draws a rectangle preview
+        if (((viewModel?.brush?.value?.selectedShape ?: Brush.Shape.PATH) == Brush.Shape.RECTANGLE) && isDrawingShapes) { // Draws a rectangle preview
             canvas.drawRect(startX, startY, tempEndX, tempEndY, previewPaint)
         }
-        if (isDrawingShapes && viewModel.brush.value?.selectedShape == Brush.Shape.TRIANGLE) { // Draws a rectangle preview
+        if (isDrawingShapes && viewModel?.brush?.value?.selectedShape == Brush.Shape.TRIANGLE) { // Draws a rectangle preview
             val topX = (startX + tempEndX) / 2
             val previewPath = Path().apply {
                 moveTo(topX, startY)
@@ -87,7 +90,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
             canvas.drawPath(previewPath, previewPaint)
         }
-        if (isDrawingShapes && viewModel.brush.value?.selectedShape == Brush.Shape.CIRCLE) { // Draws a circle preview
+        if (isDrawingShapes && viewModel?.brush?.value?.selectedShape == Brush.Shape.CIRCLE) { // Draws a circle preview
             val radius = hypot((tempEndX - startX).toDouble(), (tempEndY - startY).toDouble()).toFloat()
             canvas.drawCircle(startX, startY, radius, previewPaint)
         }
@@ -103,7 +106,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         if (!isDrawing)
             return true
 
-        val curShape = viewModel.brush.value?.selectedShape ?: Brush.Shape.PATH
+        val curShape = viewModel?.brush?.value?.selectedShape ?: Brush.Shape.PATH
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> { // When mouse is pressed down
                 startX = event.x
@@ -111,7 +114,8 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 if (curShape == Brush.Shape.PATH){ // If the shape is a path make a new path at x and y
                     val newPath = Path()
                     newPath.moveTo(event.x, event.y)
-                    viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
+                    viewModel?.addPath(newPath, viewModel?.brush?.value?.color ?: Color.BLACK,
+                        viewModel?.brush?.value?.size ?: 5f)
                 }
                 if (curShape != Brush.Shape.PATH) { // If the shape is anything other than a path set preview variables
                     isDrawingShapes = true
@@ -121,7 +125,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
             MotionEvent.ACTION_MOVE -> { // When the mouse is moved when clicked
                 if (curShape == Brush.Shape.PATH){ // When the shape is a path, add a line from the previous location to the current
-                    val drawing = viewModel.drawing.value
+                    val drawing = viewModel?.drawing?.value
                     drawing?.paths?.lastOrNull()?.path?.lineTo(event.x, event.y)
                 }
                 if (curShape != Brush.Shape.PATH && isDrawingShapes) { // When the shape is not a path update the temp variables and redraw to activate the preview
@@ -156,7 +160,8 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                         addCircle(startX, startY, radius, Path.Direction.CW)
                     }
                 }
-                viewModel.addPath(newPath, viewModel.brush.value?.color ?: Color.BLACK, viewModel.brush.value?.size ?: 5f)
+                viewModel?.addPath(newPath, viewModel!!.brush.value?.color ?: Color.BLACK,
+                    viewModel!!.brush.value?.size ?: 5f)
                 isDrawingShapes = false
             }
         }
