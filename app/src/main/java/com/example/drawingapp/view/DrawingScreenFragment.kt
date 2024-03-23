@@ -93,6 +93,7 @@ class DrawingScreenFragment : Fragment() {
                     ComposableDrawingPort(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
                         viewModel.viewModelScope.launch {
                             viewModel.saveCurrentDrawing()
+                            findNavController().navigate(R.id.onSaved)
                         }
                     }
                 }

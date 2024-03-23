@@ -8,9 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.drawingapp.model.database.DrawingRepository
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
-import com.example.drawingapp.model.PathDataConverter
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -39,7 +36,7 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     )
 
     //The list used for the recyclerview
-    val drawingList = repository.getAllConvertedDrawings()
+    val drawingList = _drawingList as LiveData<out List<Drawing>>
     // Flag to indicate if the database is empty
     private var isFirstDrawing: Boolean = false
     // This is so that the drawing does not get added if the user is only editing a drawing.
@@ -53,6 +50,7 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _brush.value = Brush()
         _showSaveLoadDialog.value = false
         _drawing.value = Drawing(ArrayList())
+        _drawingList.value = repository.getAllConvertedDrawings()
     }
 
     /**
@@ -89,9 +87,14 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         val currentDrawing = _drawing.value
         if (isFirstDrawing) {
             isFirstDrawing = false
-            //drawingList.remo
+            //There is a fake empty drawing panel in the recycler view, so remove that
+            // fake first before placing the first one in.
+            _drawingList.value?.removeAt(0)
         }
-        repository.insertDrawing(currentDrawing!!)
+        if (isNewDrawing){
+            _drawingList.value?.add(currentDrawing!!)
+            repository.insertDrawing(currentDrawing!!)
+        }
         clearDrawing()
     }
 //        if (isFirstDrawing) {

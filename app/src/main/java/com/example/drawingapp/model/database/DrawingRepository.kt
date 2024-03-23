@@ -30,15 +30,15 @@ class DrawingRepository(private val scope: CoroutineScope,
         }
     }
 
-    fun getAllConvertedDrawings(): LiveData<List<Drawing>> {
-        val convertedDrawings = MediatorLiveData<List<Drawing>>()
+    fun getAllConvertedDrawings(): MutableList<Drawing> {
+        val convertedDrawings =  mutableListOf(Drawing(ArrayList()))
 
         scope.launch {
             allDbDrawings.collect { dbDrawings ->
                 val drawings = dbDrawings.map { dbDrawing ->
                     DrawingConverter.toDrawing(dbDrawing)
                 }
-                convertedDrawings.postValue(drawings)
+                convertedDrawings.addAll(drawings)
             }
         }
 
