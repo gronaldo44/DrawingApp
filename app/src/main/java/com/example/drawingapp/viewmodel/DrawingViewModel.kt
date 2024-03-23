@@ -1,17 +1,24 @@
 package com.example.drawingapp.viewmodel
 
+import android.content.Context
 import android.graphics.Path
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.drawingapp.model.database.DrawingRepository
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
+import com.example.drawingapp.model.DrawingSerializer
+import com.example.drawingapp.model.PathData
+import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * ViewModel for managing drawing properties and dialogs in the Drawing Screen.
  * Responsible for managing brush color, brush size, and showing/hiding dialogs.
  */
-class DrawingViewModel : ViewModel() {
+class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() {
     // LiveData for brush
     private var _brush = MutableLiveData<Brush>()
     val brush: LiveData<Brush>
@@ -24,32 +31,28 @@ class DrawingViewModel : ViewModel() {
 
     // LiveData for storing the drawing
     private var _drawing = MutableLiveData<Drawing>()
-
     val drawing: LiveData<Drawing>
         get() = _drawing
 
     // LiveData for all stored drawings
     private val _drawingList = MutableLiveData(
-        mutableListOf(Drawing())
+        mutableListOf(Drawing(ArrayList()))
     )
 
     //The list used for the recyclerview
-    val drawingList = _drawingList as LiveData<out List<Drawing>>
+    var drawingList: LiveData<List<Drawing>>? = null    // tmp value
+    // This is so that the drawing does not get added if the user is only editing a drawing.
+    private var isNewDrawing: Boolean = false
 
-    //Set to true if the drawing is the first drawing to be stored.
-    var isFirstDrawing = true
-
-    //Set to true if the drawing is a new drawing.
-    var isNewDrawing = true
-
-
-
-    // Initialize default values
+    // initialize default values
     init {
         _brush.value = Brush()
-        // Initialize alert dialog screens
         _showSaveLoadDialog.value = false
-        _drawing.value = Drawing()
+        _drawing.value = Drawing(ArrayList())
+    }
+
+    fun initializeDrawingList(context: Context){
+        drawingList = repository.getAllConvertedDrawings(context)
     }
 
     /**
@@ -63,7 +66,7 @@ class DrawingViewModel : ViewModel() {
         val currentDrawing = _drawing.value ?: return
 
         // Add the new path to the drawing data
-        val pathData = Drawing.PathData(path, color, size)
+        val pathData = PathData(path, color, size)
         currentDrawing.paths.add(pathData)
 
         // Notify observers about the updated drawing data
@@ -74,7 +77,7 @@ class DrawingViewModel : ViewModel() {
      * Clears the current drawing.
      */
     fun clearDrawing() {
-        _drawing.value = Drawing()
+        _drawing.value = Drawing(ArrayList())
     }
 
     /**
@@ -82,29 +85,44 @@ class DrawingViewModel : ViewModel() {
      * If the drawing is edited, it will be edited correctly without adding it to
      * the list. Only add to the list if the drawing didn't exist before.
      */
-    fun saveCurrentDrawing() {
-        if (isFirstDrawing) {
-            //There is a fake empty drawing panel in the recycler view, so remove that
-            //fake first before placing the first one in.
-            isFirstDrawing = false
-            _drawingList.value?.removeAt(0)
-            _drawingList.value?.add(_drawing.value!!)
+     fun saveCurrentDrawing(context: Context) {
+        val curr = _drawing.value!!
+        var filename: String = "Drawing" + curr.id
+        viewModelScope.launch {
+            val isUpdate: Boolean = repository.isExists(curr.id)
+            if (!isUpdate){
+                filename = "Drawing" + (repository.getSize())
+                repository.insertDrawing(filename)
+            }
+            val serializedPathData: String = DrawingSerializer.fromPathDataList(curr.paths)
+            val f = File(context.filesDir, filename)
+            f.writeText(serializedPathData)
         }
-        else if (isNewDrawing){
-            _drawingList.value?.add(_drawing.value!!)
-        }
+        _drawingList.value?.add(_drawing.value!!)
         _drawingList.value = _drawingList.value
         clearDrawing()
     }
+//        if (isFirstDrawing) {
+//            //There is a fake empty drawing panel in the recycler view, so remove that
+//            //fake first before placing the first one in.
+//            isFirstDrawing = false
+//            _drawingList.value?.removeAt(0)
+//            _drawingList.value?.add(_drawing.value!!)
+//        }
+//        else if (isNewDrawing){
+//            _drawingList.value?.add(_drawing.value!!)
+//        }
+//        _drawingList.value = _drawingList.value
+//        clearDrawing()
+//    }
 
     /**
      * Sets the brush color.
      * @param color The new color value.
      */
     fun setBrushColor(color: Int) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.color = color
-        _brush.value = currentBrush
+        val currentBrush = _brush.value?.copy(color = color)
+        _brush.value = currentBrush!!
     }
 
     /**
@@ -112,9 +130,8 @@ class DrawingViewModel : ViewModel() {
      * @param size The new size value.
      */
     fun setBrushSize(size: Float) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.size = size
-        _brush.value = currentBrush
+        val currentBrush = _brush.value?.copy(size = size)
+        _brush.value = currentBrush!!
     }
 
     /**
@@ -122,9 +139,8 @@ class DrawingViewModel : ViewModel() {
      * @param shape The new shape value.
      */
     fun selectShape(shape: Brush.Shape) {
-        val currentBrush = _brush.value ?: Brush()
-        currentBrush.selectedShape = shape
-        _brush.value = currentBrush
+        val currentBrush = _brush.value?.copy(selectedShape = shape)
+        _brush.value = currentBrush!!
     }
 
     /**
@@ -165,4 +181,5 @@ class DrawingViewModel : ViewModel() {
         resetBrush()
         clearDrawing()
     }
+
 }
