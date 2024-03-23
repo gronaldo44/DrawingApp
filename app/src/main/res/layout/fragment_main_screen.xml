@@ -18,8 +18,8 @@
             android:textSize="34sp"
             android:textStyle="bold"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/drawingRecyclerView"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_view"
             android:layout_width="match_parent"
             android:layout_height="620dp"
             android:background="#D3D3D3"/>

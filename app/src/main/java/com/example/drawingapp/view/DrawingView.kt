@@ -102,9 +102,9 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
      */
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        super.onTouchEvent(event)
         if (!isDrawing)
-            return true
+            return false
+        super.onTouchEvent(event)
 
         val curShape = viewModel?.brush?.value?.selectedShape ?: Brush.Shape.PATH
         when (event?.action) {
