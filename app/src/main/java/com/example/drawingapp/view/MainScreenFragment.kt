@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -32,8 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.model.Drawing
+import kotlinx.coroutines.launch
 
 /**
  * The Main Screen Fragment that shows the recycler view and allows to create a new drawing
@@ -59,15 +59,21 @@ class MainScreenFragment : Fragment() {
         // Initialize your ViewModel
         viewModel = ViewModelProvider(this, viewModelFactory)[DrawingViewModel::class.java]
 
-
         binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
             viewModel.resetModel()
             viewModel.isNewDrawing(true)
             findNavController().navigate(R.id.AddDrawingClicked)
         }
 
+        var drawingsList: ArrayList<Drawing> = ArrayList()
+        // Call getAllDrawings using lifecycleScope to get the list of drawings
+        viewLifecycleOwner.lifecycleScope.launch {
+            drawingsList = viewModel.getAllDrawings(requireContext())
+        }
+
         binding.composeView!!.setContent {
-            ScrollableDrawingColumn(data = viewModel.drawingList, viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner) {
+            ScrollableDrawingColumn(
+                data = drawingsList, viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner) {
                 findNavController().navigate(R.id.selectDrawing)
             }
         }
@@ -78,7 +84,7 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun ScrollableDrawingColumn(data: LiveData<out List<Drawing>>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
+fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +95,7 @@ fun ScrollableDrawingColumn(data: LiveData<out List<Drawing>>, viewLifecycleOwne
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(data.value!!) { item ->
+            items(data) { item ->
                 ListItem(viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner, drawing = item) {
                     viewModel.resetModel()
                     viewModel.setDrawing(item)

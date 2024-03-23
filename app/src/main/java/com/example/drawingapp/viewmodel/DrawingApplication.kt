@@ -1,6 +1,7 @@
 package com.example.drawingapp.viewmodel
 
 import android.app.Application
+import android.content.Context
 import com.example.drawingapp.model.database.DrawingDatabase
 import com.example.drawingapp.model.database.DrawingRepository
 import kotlinx.coroutines.CoroutineScope

@@ -11,6 +11,7 @@ import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -33,14 +34,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     private var _drawing = MutableLiveData<Drawing>()
     val drawing: LiveData<Drawing>
         get() = _drawing
-
-    // LiveData for all stored drawings
-    private val _drawingList = MutableLiveData(
-        mutableListOf(Drawing(ArrayList()))
-    )
-
-    //The list used for the recyclerview
-    var drawingList: LiveData<List<Drawing>>? = null    // tmp value
     // This is so that the drawing does not get added if the user is only editing a drawing.
     private var isNewDrawing: Boolean = false
 
@@ -51,8 +44,10 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _drawing.value = Drawing(ArrayList())
     }
 
-    fun initializeDrawingList(context: Context){
-        drawingList = repository.getAllConvertedDrawings(context)
+    suspend fun getAllDrawings(context: Context): ArrayList<Drawing> {
+        return viewModelScope.async {
+            repository.getAllConvertedDrawings(context)
+        }.await()
     }
 
     /**
@@ -98,8 +93,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
             val f = File(context.filesDir, filename)
             f.writeText(serializedPathData)
         }
-        _drawingList.value?.add(_drawing.value!!)
-        _drawingList.value = _drawingList.value
         clearDrawing()
     }
 //        if (isFirstDrawing) {

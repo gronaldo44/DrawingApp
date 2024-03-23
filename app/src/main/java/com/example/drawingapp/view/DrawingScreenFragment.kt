@@ -49,6 +49,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.R
 import com.example.drawingapp.model.Brush
+import com.example.drawingapp.viewmodel.DrawingApplication
+import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import com.flask.colorpicker.ColorPickerView
 
 
@@ -60,6 +62,7 @@ import com.flask.colorpicker.ColorPickerView
  */
 class DrawingScreenFragment : Fragment() {
     private lateinit var viewModel: DrawingViewModel
+    private lateinit var viewModelFactory: DrawingViewModelFactory
     private lateinit var binding: FragmentDrawingScreenBinding
 
     override fun onCreateView(
@@ -70,8 +73,12 @@ class DrawingScreenFragment : Fragment() {
             inflater, R.layout.fragment_drawing_screen, container, false
         )
 
-        // Sets the view model and the lifecycle
-        viewModel = ViewModelProvider(requireActivity())[DrawingViewModel::class.java]
+        // Initialize your ViewModelFactory
+        val application = requireActivity().application as DrawingApplication
+        viewModelFactory = DrawingViewModelFactory(application.repo)
+        // Initialize your ViewModel
+        viewModel = ViewModelProvider(this, viewModelFactory)[DrawingViewModel::class.java]
+        // Sets the lifecycle
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 

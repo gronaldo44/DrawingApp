@@ -1,20 +1,14 @@
 package com.example.drawingapp.model.database
 
 import android.content.Context
-import android.content.ContextWrapper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.asLiveData
 import com.example.drawingapp.model.DbDrawing
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 class DrawingRepository(private val scope: CoroutineScope,
                         private val drawingDao: DrawingDao) {
@@ -46,19 +40,15 @@ class DrawingRepository(private val scope: CoroutineScope,
         return drawingDao.exists(id)
     }
 
-    fun getAllConvertedDrawings(context: Context): LiveData<List<Drawing>> {
-        val convertedDrawings = MediatorLiveData<List<Drawing>>()
-
-        scope.launch {
-            allDbDrawings.collect { dbDrawings ->
-                val drawings = dbDrawings.map { dbDrawing ->
-                    DrawingSerializer.toDrawing(dbDrawing, context)
-                }
-                convertedDrawings.postValue(drawings)
+    suspend fun getAllConvertedDrawings(context: Context): ArrayList<Drawing> {
+        val convertedDrawings = ArrayList<Drawing>()
+        allDbDrawings.collect { dbDrawings ->
+            for (dbDrawing in dbDrawings) {
+                // Convert each DbDrawing to Drawing using DrawingSerializer
+                val drawing = DrawingSerializer.toDrawing(dbDrawing, context)
+                convertedDrawings.add(drawing)
             }
         }
-
         return convertedDrawings
     }
-
 }
