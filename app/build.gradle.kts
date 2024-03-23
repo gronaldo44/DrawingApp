@@ -82,7 +82,7 @@ dependencies {
     androidTestImplementation("androidx.arch.core:core-testing:+")
 
     // Color wheel selector
-   implementation("com.github.QuadFlask:colorpicker:0.0.13")
+    implementation("com.github.QuadFlask:colorpicker:0.0.13")
 
     //ROOM STUFF
     implementation("androidx.room:room-common:2.6.1")

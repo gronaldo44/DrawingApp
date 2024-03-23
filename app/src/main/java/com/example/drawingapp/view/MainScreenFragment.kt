@@ -1,6 +1,7 @@
 package com.example.drawingapp.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -68,16 +69,18 @@ class MainScreenFragment : Fragment() {
         var drawingsList: ArrayList<Drawing> = ArrayList()
         // Call getAllDrawings using lifecycleScope to get the list of drawings
         viewLifecycleOwner.lifecycleScope.launch {
-            drawingsList = viewModel.getAllDrawings(requireContext())
-        }
 
-        binding.composeView!!.setContent {
-            ScrollableDrawingColumn(
-                data = drawingsList, viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner) {
-                findNavController().navigate(R.id.selectDrawing)
+            drawingsList = viewModel.getAllDrawings(requireContext())
+
+            Log.e("test", drawingsList.toString())
+
+            binding.composeView!!.setContent {
+                ScrollableDrawingColumn(
+                    data = drawingsList, viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner) {
+                    findNavController().navigate(R.id.selectDrawing)
+                }
             }
         }
-
 
         return binding.root
     }

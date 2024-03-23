@@ -8,6 +8,7 @@ import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class DrawingRepository(private val scope: CoroutineScope,
@@ -41,13 +42,12 @@ class DrawingRepository(private val scope: CoroutineScope,
     }
 
     suspend fun getAllConvertedDrawings(context: Context): ArrayList<Drawing> {
+        val dbDrawings = allDbDrawings.first() // Or use .take(1).toList() for multiple emissions
         val convertedDrawings = ArrayList<Drawing>()
-        allDbDrawings.collect { dbDrawings ->
-            for (dbDrawing in dbDrawings) {
-                // Convert each DbDrawing to Drawing using DrawingSerializer
-                val drawing = DrawingSerializer.toDrawing(dbDrawing, context)
-                convertedDrawings.add(drawing)
-            }
+        for (dbDrawing in dbDrawings) {
+            // Convert each DbDrawing to Drawing using DrawingSerializer
+            val drawing = DrawingSerializer.toDrawing(dbDrawing, context)
+            convertedDrawings.add(drawing)
         }
         return convertedDrawings
     }

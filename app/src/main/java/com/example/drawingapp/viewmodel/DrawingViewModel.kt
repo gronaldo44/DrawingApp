@@ -2,6 +2,7 @@ package com.example.drawingapp.viewmodel
 
 import android.content.Context
 import android.graphics.Path
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,9 @@ import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
 import java.io.File
 
 /**
@@ -37,6 +40,10 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     // This is so that the drawing does not get added if the user is only editing a drawing.
     private var isNewDrawing: Boolean = false
 
+    private val saveCompletionChannel = Channel<Unit>()
+    private var saveInProgress = false
+    private val saveSemaphore = Semaphore(1)
+
     // initialize default values
     init {
         _brush.value = Brush()
@@ -44,10 +51,22 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _drawing.value = Drawing(ArrayList())
     }
 
-    suspend fun getAllDrawings(context: Context): ArrayList<Drawing> {
-        return viewModelScope.async {
-            repository.getAllConvertedDrawings(context)
-        }.await()
+    /**
+
+    Semaphore ensures that only one coroutine can proceed at a time.
+    If saveCurrentDrawing is in progress, getAllDrawings will wait.*/
+    suspend fun getAllDrawings(context: Context): ArrayList<Drawing> {// Acquire semaphore
+        saveSemaphore.acquire()
+        try {
+            if (saveInProgress) {// If saveCurrentDrawing is in progress, wait for completion
+                saveCompletionChannel.receive()
+            }
+            // Wait for saveCurrentDrawing completion signal}
+            return repository.getAllConvertedDrawings(context)
+        }
+        finally {// Release semaphore
+            saveSemaphore.release()
+        }
     }
 
     /**
@@ -76,38 +95,36 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-     * Saves the current drawing
-     * If the drawing is edited, it will be edited correctly without adding it to
-     * the list. Only add to the list if the drawing didn't exist before.
-     */
-     fun saveCurrentDrawing(context: Context) {
+
+    Saves the current drawing
+    If the drawing is edited, it will be edited correctly without adding it to
+    the list. Only add to the list if the drawing didn't exist before.*/
+    fun saveCurrentDrawing(context: Context) {
         val curr = _drawing.value!!
         var filename: String = "Drawing" + curr.id
         viewModelScope.launch {
-            val isUpdate: Boolean = repository.isExists(curr.id)
-            if (!isUpdate){
-                filename = "Drawing" + (repository.getSize())
-                repository.insertDrawing(filename)
+            saveInProgress = true // Set flag to indicate save in progress
+            saveSemaphore.acquire() // Wait until previous getAllDrawings completes (if any)
+            try {
+                val isUpdate: Boolean = repository.isExists(curr.id)
+                if (!isUpdate){
+                    filename = "Drawing" + (repository.getSize())
+                    repository.insertDrawing(filename)
+                    Log.d("Inserting Drawing", filename)} else {
+                    Log.d("Updating Drawing", filename)}
+                val serializedPathData: String = DrawingSerializer.fromPathDataList(curr.paths)
+                val f = File(context.filesDir, filename)
+                f.writeText(serializedPathData)
+
+                // Emit completion signal
+                saveCompletionChannel.send(Unit)
+            } finally {
+                saveInProgress = false // Reset flag after save operation completes
+                saveSemaphore.release() // Release semaphore to allow next getAllDrawings
             }
-            val serializedPathData: String = DrawingSerializer.fromPathDataList(curr.paths)
-            val f = File(context.filesDir, filename)
-            f.writeText(serializedPathData)
         }
         clearDrawing()
     }
-//        if (isFirstDrawing) {
-//            //There is a fake empty drawing panel in the recycler view, so remove that
-//            //fake first before placing the first one in.
-//            isFirstDrawing = false
-//            _drawingList.value?.removeAt(0)
-//            _drawingList.value?.add(_drawing.value!!)
-//        }
-//        else if (isNewDrawing){
-//            _drawingList.value?.add(_drawing.value!!)
-//        }
-//        _drawingList.value = _drawingList.value
-//        clearDrawing()
-//    }
 
     /**
      * Sets the brush color.
