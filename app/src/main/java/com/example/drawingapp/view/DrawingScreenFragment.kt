@@ -80,14 +80,14 @@ class DrawingScreenFragment : Fragment() {
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableDrawingLand(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing()
+                        viewModel.saveCurrentDrawing(requireContext())
                         findNavController().navigate(R.id.onSaved)
                     }
                 }
 
                 else -> {
                     ComposableDrawingPort(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing()
+                        viewModel.saveCurrentDrawing(requireContext())
                         findNavController().navigate(R.id.onSaved)
                     }
                 }
