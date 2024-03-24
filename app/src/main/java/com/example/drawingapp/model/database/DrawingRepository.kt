@@ -55,7 +55,7 @@ class DrawingRepository(private val scope: CoroutineScope,
      *
      * @param fileDir The file directory associated with the drawing.
      */
-    suspend fun insertDrawing(fileDir: String) {
+    fun insertDrawing(fileDir: String) {
         scope.launch {
             drawingDao.insertDrawing(DbDrawing(fileDir = fileDir))
         }
@@ -78,7 +78,7 @@ class DrawingRepository(private val scope: CoroutineScope,
      * @return List of converted Drawing objects.
      */
     suspend fun getAllConvertedDrawings(context: Context): ArrayList<Drawing> {
-        val dbDrawings = allDbDrawings.first() // Or use .take(1).toList() for multiple emissions
+        val dbDrawings = allDbDrawings.first()
         val convertedDrawings = ArrayList<Drawing>()
         for (dbDrawing in dbDrawings) {
             // Convert each DbDrawing to Drawing using DrawingSerializer

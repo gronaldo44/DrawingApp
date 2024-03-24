@@ -17,7 +17,7 @@ interface DrawingDao {
      * @param drawing The drawing to be inserted.
      */
     @Insert
-    suspend fun insertDrawing(drawing: DbDrawing)
+    fun insertDrawing(drawing: DbDrawing)
 
     /**
      * Retrieves all drawings from the database as a Flow of lists.
