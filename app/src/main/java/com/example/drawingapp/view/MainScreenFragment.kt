@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.model.Drawing
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * The Main Screen Fragment that shows the recycler view and allows to create a new drawing
@@ -50,15 +53,18 @@ class MainScreenFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        Log.d("Creating View", "MainScreenFragment")
+
         // Inflate the layout for this fragment
         binding = FragmentMainScreenBinding.inflate(layoutInflater, container, false)
 
         // Initialize your ViewModelFactory
-        val application = requireActivity().application as DrawingApplication
+        val activity = requireActivity() // Get the hosting activity
+        val application = activity.application as DrawingApplication
         viewModelFactory = DrawingViewModelFactory(application.repo)
-        // Initialize your ViewModel
-        viewModel = ViewModelProvider(this, viewModelFactory)[DrawingViewModel::class.java]
+        // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
+        viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
 
         binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
             viewModel.resetModel()
@@ -69,10 +75,11 @@ class MainScreenFragment : Fragment() {
         var drawingsList: ArrayList<Drawing> = ArrayList()
         // Call getAllDrawings using lifecycleScope to get the list of drawings
         viewLifecycleOwner.lifecycleScope.launch {
-
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Loading Drawings...", Toast.LENGTH_SHORT).show()
+            }
             drawingsList = viewModel.getAllDrawings(requireContext())
-
-            Log.e("test", drawingsList.toString())
+            Log.d("Drawings", drawingsList.count().toString())
 
             binding.composeView!!.setContent {
                 ScrollableDrawingColumn(

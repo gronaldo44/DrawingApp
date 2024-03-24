@@ -1,6 +1,7 @@
 package com.example.drawingapp.model.database
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.example.drawingapp.model.DbDrawing
@@ -47,6 +48,7 @@ class DrawingRepository(private val scope: CoroutineScope,
         for (dbDrawing in dbDrawings) {
             // Convert each DbDrawing to Drawing using DrawingSerializer
             val drawing = DrawingSerializer.toDrawing(dbDrawing, context)
+            Log.d("Converted Drawing", drawing.id.toString())
             convertedDrawings.add(drawing)
         }
         return convertedDrawings

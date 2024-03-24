@@ -2,6 +2,7 @@ package com.example.drawingapp.view
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,6 +46,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.databinding.FragmentDrawingScreenBinding
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.R
@@ -52,6 +54,7 @@ import com.example.drawingapp.model.Brush
 import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import com.flask.colorpicker.ColorPickerView
+import kotlinx.coroutines.launch
 
 
 /**
@@ -68,16 +71,18 @@ class DrawingScreenFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding: FragmentDrawingScreenBinding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_drawing_screen, container, false
         )
+        Log.d("Creating View", "DrawingScreenFragment")
 
         // Initialize your ViewModelFactory
-        val application = requireActivity().application as DrawingApplication
+        val activity = requireActivity() // Get the hosting activity
+        val application = activity.application as DrawingApplication
         viewModelFactory = DrawingViewModelFactory(application.repo)
-        // Initialize your ViewModel
-        viewModel = ViewModelProvider(this, viewModelFactory)[DrawingViewModel::class.java]
+        // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
+        viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
         // Sets the lifecycle
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
@@ -87,19 +92,23 @@ class DrawingScreenFragment : Fragment() {
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableDrawingLand(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing(requireContext())
-                        findNavController().navigate(R.id.onSaved)
+                        viewModel.viewModelScope.launch {
+                            viewModel.saveCurrentDrawing(requireContext())
+                            findNavController().navigate(R.id.onSaved)
+                        }
                     }
                 }
-
                 else -> {
                     ComposableDrawingPort(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
-                        viewModel.saveCurrentDrawing(requireContext())
-                        findNavController().navigate(R.id.onSaved)
+                        viewModel.viewModelScope.launch {
+                            viewModel.saveCurrentDrawing(requireContext())
+                            findNavController().navigate(R.id.onSaved)
+                        }
                     }
                 }
             }
         }
+
         return binding.root
     }
 }

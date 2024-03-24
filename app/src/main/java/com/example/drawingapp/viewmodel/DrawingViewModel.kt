@@ -3,6 +3,7 @@ package com.example.drawingapp.viewmodel
 import android.content.Context
 import android.graphics.Path
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,10 +13,12 @@ import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -40,7 +43,7 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     // This is so that the drawing does not get added if the user is only editing a drawing.
     private var isNewDrawing: Boolean = false
 
-    private val saveCompletionChannel = Channel<Unit>()
+    val saveCompletionChannel = Channel<Unit>()
     private var saveInProgress = false
     private val saveSemaphore = Semaphore(1)
 
@@ -52,19 +55,22 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-
-    Semaphore ensures that only one coroutine can proceed at a time.
-    If saveCurrentDrawing is in progress, getAllDrawings will wait.*/
-    suspend fun getAllDrawings(context: Context): ArrayList<Drawing> {// Acquire semaphore
+     * Semaphore ensures that only one coroutine can proceed at a time.
+     * If saveCurrentDrawing is in progress, getAllDrawings will wait.
+     */
+    suspend fun getAllDrawings(context: Context): ArrayList<Drawing> {
+        // Acquire semaphore
         saveSemaphore.acquire()
         try {
-            if (saveInProgress) {// If saveCurrentDrawing is in progress, wait for completion
-                saveCompletionChannel.receive()
+            Log.d("Getting Drawings from", this.toString())
+            if (saveInProgress) {
+                Log.d("Save in progress", "Waiting")
+                // If saveCurrentDrawing is in progress, wait for completion
+                saveCompletionChannel.receive() // Wait for saveCurrentDrawing completion signal
             }
-            // Wait for saveCurrentDrawing completion signal}
             return repository.getAllConvertedDrawings(context)
-        }
-        finally {// Release semaphore
+        } finally {
+            // Release semaphore
             saveSemaphore.release()
         }
     }
@@ -95,35 +101,42 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-
-    Saves the current drawing
-    If the drawing is edited, it will be edited correctly without adding it to
-    the list. Only add to the list if the drawing didn't exist before.*/
-    fun saveCurrentDrawing(context: Context) {
+     * Saves the current drawing
+     * If the drawing is edited, it will be edited correctly without adding it to
+     * the list. Only add to the list if the drawing didn't exist before.
+     */
+    suspend fun saveCurrentDrawing(context: Context) {
         val curr = _drawing.value!!
-        var filename: String = "Drawing" + curr.id
-        viewModelScope.launch {
+        var filename: String = "Drawing"
+
+        // Perform file writing operation in IO dispatcher
+        withContext(Dispatchers.IO) {
             saveInProgress = true // Set flag to indicate save in progress
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Saving Drawing", Toast.LENGTH_SHORT).show()
+            }
             saveSemaphore.acquire() // Wait until previous getAllDrawings completes (if any)
             try {
                 val isUpdate: Boolean = repository.isExists(curr.id)
                 if (!isUpdate){
-                    filename = "Drawing" + (repository.getSize())
+                    filename += repository.getSize()
                     repository.insertDrawing(filename)
-                    Log.d("Inserting Drawing", filename)} else {
-                    Log.d("Updating Drawing", filename)}
+                    Log.d("Inserting Drawing", filename)
+                } else {
+                    filename += (curr.id - 1)
+                    Log.d("Updating Drawing", filename)
+                }
                 val serializedPathData: String = DrawingSerializer.fromPathDataList(curr.paths)
                 val f = File(context.filesDir, filename)
                 f.writeText(serializedPathData)
-
-                // Emit completion signal
-                saveCompletionChannel.send(Unit)
+                Log.d("Wrote To:", filename)
+            } catch (e: Exception){
+                Log.e("Save Error", "Error saving drawing: ${e.message}")
             } finally {
                 saveInProgress = false // Reset flag after save operation completes
                 saveSemaphore.release() // Release semaphore to allow next getAllDrawings
             }
         }
-        clearDrawing()
     }
 
     /**
