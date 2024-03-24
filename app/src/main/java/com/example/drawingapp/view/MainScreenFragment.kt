@@ -1,5 +1,6 @@
 package com.example.drawingapp.view
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,11 +10,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentMainScreenBinding
 import androidx.lifecycle.ViewModelProvider
@@ -30,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -82,9 +87,26 @@ class MainScreenFragment : Fragment() {
             Log.d("Drawings", drawingsList.count().toString())
 
             binding.composeView!!.setContent {
-                ScrollableDrawingColumn(
-                    data = drawingsList, viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner) {
-                    findNavController().navigate(R.id.selectDrawing)
+                val configuration = LocalConfiguration.current
+                when (configuration.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+                        ScrollableDrawingColumnLand(
+                            data = drawingsList,
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner
+                        ) {
+                            findNavController().navigate(R.id.selectDrawing)
+                        }
+                    }
+                    else -> {
+                        ScrollableDrawingColumnPort(
+                            data = drawingsList,
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner
+                        ) {
+                            findNavController().navigate(R.id.selectDrawing)
+                        }
+                    }
                 }
             }
         }
@@ -103,7 +125,7 @@ class MainScreenFragment : Fragment() {
  * @param navigation The callback function to navigate to another destination.
  */
 @Composable
-fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
+fun ScrollableDrawingColumnPort(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -112,6 +134,33 @@ fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: Lifecy
     {
         LazyColumn (
             modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(data) { item ->
+                ListItem(viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner, drawing = item) {
+                    viewModel.resetModel()
+                    viewModel.setDrawing(item)
+                    viewModel.isNewDrawing(false)
+                    navigation()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScrollableDrawingColumnLand(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFD3D3D3))
+    )
+    {
+        LazyColumn (
+            modifier = Modifier.wrapContentSize()
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(data) { item ->
