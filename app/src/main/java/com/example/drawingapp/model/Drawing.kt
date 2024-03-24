@@ -7,28 +7,38 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
-import com.google.gson.*
 import kotlinx.serialization.Serializable
 import java.io.File
-import java.lang.reflect.Type
-import java.util.Date.parse
-
 
 /**
- * Regular Drawing class used in the rest of the project
+ * Represents a regular drawing containing paths.
+ * @property paths The list of paths in the drawing.
+ * @property id The identifier for the drawing.
  */
 data class Drawing(val paths: ArrayList<PathData>){
     var id: Long = -1   // tmp value
 }
 
+/**
+ * Represents serialized path data for storage and retrieval.
+ * @property path The serialized path data.
+ * @property color The color of the path.
+ * @property size The size of the path.
+ */
 data class SerializedPathData(val path: String, val color: String, val size: String)
+/**
+ * Represents path data containing the path, color, and size information.
+ * @property path The Path object representing the drawing path.
+ * @property color The color of the path.
+ * @property size The size of the path.
+ */
 data class PathData(val path: Path, val color: Int, val size: Float)
 
-// DbDrawing class for database operations (serialization of paths)
+/**
+ * Represents a drawing entity for database operations.
+ * @property fileDir The directory path where the drawing file is stored.
+ */
 @Serializable
 @Entity(tableName = "Drawing")
 data class DbDrawing(val fileDir: String){
@@ -36,10 +46,17 @@ data class DbDrawing(val fileDir: String){
     var id: Long = 0
 }
 
-// Converter for Path to String and vice versa
+/**
+ * Utility object for serializing and deserializing drawings.
+ */
 object DrawingSerializer {
     private val gson = Gson()
 
+    /**
+     * Converts a Path object to a serialized string representation.
+     * @param path The Path object to convert.
+     * @return The serialized string representation of the path.
+     */
     fun pathToString(path: Path): String {
         val points = mutableListOf<Pair<Float, Float>>()
         val pathMeasure = PathMeasure(path, false)
@@ -55,6 +72,11 @@ object DrawingSerializer {
         return Gson().toJson(points)
     }
 
+    /**
+     * Converts a serialized string representation of a path to a Path object.
+     * @param pathString The serialized string representation of the path.
+     * @return The Path object reconstructed from the serialized string.
+     */
     fun stringToPath(pathString: String): Path {
         val path = Path()
         val pointsType = object : TypeToken<List<Pair<Float, Float>>>() {}.type
@@ -69,7 +91,11 @@ object DrawingSerializer {
         return path
     }
 
-
+    /**
+     * Converts a list of PathData objects to a serialized string for storage.
+     * @param pathDataList The list of PathData objects to convert.
+     * @return The serialized string representation of the list of paths.
+     */
     @TypeConverter
     fun fromPathDataList(pathDataList: ArrayList<PathData>): String {
         val serializedPaths: ArrayList<SerializedPathData> = ArrayList()
@@ -82,12 +108,23 @@ object DrawingSerializer {
         return gson.toJson(serializedPaths)
     }
 
+    /**
+     * Converts a serialized string representation of paths back to a list of PathData objects.
+     * @param pathDataString The serialized string representation of paths.
+     * @return The list of PathData objects reconstructed from the serialized string.
+     */
     @TypeConverter
     fun toPathDataList(pathDataString: String): ArrayList<SerializedPathData> {
         val type = object : TypeToken<ArrayList<SerializedPathData>>() {}.type
         return gson.fromJson(pathDataString, type)
     }
 
+    /**
+     * Converts a DbDrawing object to a Drawing object using file data and context.
+     * @param dbDrawing The DbDrawing object to convert.
+     * @param context The application context for file operations.
+     * @return The Drawing object reconstructed from file data.
+     */
     @TypeConverter
     fun toDrawing(dbDrawing: DbDrawing, context: Context): Drawing {
         val f = File(context.filesDir, dbDrawing.fileDir)

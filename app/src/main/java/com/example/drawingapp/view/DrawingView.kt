@@ -8,11 +8,9 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
-import kotlinx.coroutines.launch
 import kotlin.math.hypot
 
 /**

@@ -38,7 +38,6 @@ class SplashScreenFragment : Fragment() {
     /**
      * Displays the fragment and adds a listener to the button to continue to the home screen
      */
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,6 +63,13 @@ class SplashScreenFragment : Fragment() {
         return binding.root
     }
 }
+
+/**
+ * Composable function for displaying the Splash screen layout in portrait orientation.
+ *
+ * @param modifier Modifier for the layout
+ * @param onClick Callback function to handle button click event
+ */
 @Composable
 fun ComposableSplashPort(modifier: Modifier = Modifier,
                  onClick: ()->Unit){
@@ -107,6 +113,12 @@ fun ComposableSplashPort(modifier: Modifier = Modifier,
     }
 }
 
+/**
+ * Composable function for displaying the Splash screen layout in landscape orientation.
+ *
+ * @param modifier Modifier for the layout
+ * @param onClick Callback function to handle button click event
+ */
 @Composable
 fun ComposableSplashLand(modifier: Modifier = Modifier,
                      onClick: ()->Unit){

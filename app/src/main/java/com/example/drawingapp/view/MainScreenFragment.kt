@@ -93,6 +93,15 @@ class MainScreenFragment : Fragment() {
     }
 }
 
+/**
+ * A composable function to display a scrollable column of drawings.
+ * Each drawing is represented as a ListItem, allowing interaction with the drawing view.
+ *
+ * @param data The list of drawings to display.
+ * @param viewLifecycleOwner The lifecycle owner for observing LiveData in the ViewModel.
+ * @param viewModel The ViewModel instance associated with the drawing screen.
+ * @param navigation The callback function to navigate to another destination.
+ */
 @Composable
 fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
     Box(
@@ -117,6 +126,15 @@ fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: Lifecy
     }
 }
 
+/**
+ * A composable function to display a single drawing item in the list.
+ * Clicking on the item triggers the specified onClick callback.
+ *
+ * @param viewModel The ViewModel instance associated with the drawing screen.
+ * @param viewLifecycleOwner The lifecycle owner for observing LiveData in the ViewModel.
+ * @param drawing The Drawing object to display in the item.
+ * @param onClick The callback function to execute when the item is clicked.
+ */
 @Composable
 fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, drawing: Drawing, onClick: () -> Unit) {
     val drawingVisible = remember { mutableStateOf(true) }
