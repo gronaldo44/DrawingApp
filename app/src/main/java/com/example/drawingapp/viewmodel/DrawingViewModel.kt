@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Path
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,10 +31,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     val brush: LiveData<Brush>
         get() = _brush
 
-    // LiveData for showing/hiding save/load dialog
-    private val _showSaveLoadDialog = MutableLiveData<Boolean>()
-    val showSaveLoadDialog: LiveData<Boolean>
-        get() = _showSaveLoadDialog
 
     // LiveData for storing the drawing
     private var _drawing = MutableLiveData<Drawing>()
@@ -44,10 +43,17 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     private var saveInProgress = false
     private val saveSemaphore = Semaphore(1)
 
+    // ViewModel components for UI
+    val drawingVisible: MutableState<Boolean> = mutableStateOf(true)
+    val shapeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val colorPickerVisible: MutableState<Boolean> = mutableStateOf(false)
+    val sizeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val sliderPosition: MutableState<Float> = mutableFloatStateOf(0f)
+
+
     // initialize default values
     init {
         _brush.value = Brush()
-        _showSaveLoadDialog.value = false
         _drawing.value = Drawing(ArrayList())
     }
 
@@ -169,13 +175,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
      */
     fun setDrawing(drawing: Drawing) {
         _drawing.value = drawing
-    }
-
-    /**
-     * Marks the save/load dialog as shown.
-     */
-    fun saveLoadDialogShown() {
-        _showSaveLoadDialog.value = false
     }
 
     /**
