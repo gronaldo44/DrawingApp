@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -142,7 +143,8 @@ fun ComposableColorSelector(viewModel: DrawingViewModel){
             modifier = Modifier
                 .padding(16.dp)
                 .size(320.dp)
-                .wrapContentSize(),
+                .wrapContentSize()
+                .testTag("colorLayoutShowing"),
             factory = { context ->
                 ColorPickerView(context, null).apply {
                     addOnColorChangedListener { selectedColor ->
@@ -165,7 +167,8 @@ fun ComposableColorSelector(viewModel: DrawingViewModel){
 fun ComposableShapeSelector(viewModel: DrawingViewModel){
     if (viewModel.shapeLayoutVisible.value) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(8.dp)
+                .testTag("shapesLayoutShowing"),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = { viewModel.selectShape(Brush.Shape.PATH)
@@ -206,6 +209,7 @@ fun ComposableSizeSelector(viewModel: DrawingViewModel){
                 onValueChange = { viewModel.sliderPosition.value = it },
                 valueRange = 0f..100f,
                 modifier = Modifier.padding(horizontal = 32.dp)
+                                    .testTag("sizeLayoutShowing")
             )
             Button(
                 onClick = {
@@ -236,24 +240,24 @@ fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: 
         viewModel.sizeLayoutVisible.value = false
         viewModel.shapeLayoutVisible.value = false
         viewModel.drawingVisible.value = !viewModel.drawingVisible.value},
-        modifier = modifier) {
+        modifier = modifier.testTag("Color")) {
         Text("Color")
     }
     Button(onClick = { viewModel.sizeLayoutVisible.value  = !viewModel.sizeLayoutVisible.value
         viewModel.colorPickerVisible.value = false
         viewModel.shapeLayoutVisible.value = false
         viewModel.drawingVisible.value = true},
-        modifier = modifier) {
+        modifier = modifier.testTag("Size")) {
         Text("Size")
     }
     Button(onClick = { viewModel.shapeLayoutVisible.value  = !viewModel.shapeLayoutVisible.value
         viewModel.colorPickerVisible.value = false
         viewModel.sizeLayoutVisible.value = false
         viewModel.drawingVisible.value = true},
-        modifier = modifier) {
+        modifier = modifier.testTag("Shapes")) {
         Text("Shapes")
     }
-    Button(onClick = onClick, modifier = modifier) {
+    Button(onClick = onClick, modifier = modifier.testTag("Save")) {
         Text("Save")
     }
 }
@@ -289,7 +293,7 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ComposableSetting(modifier = Modifier, viewModel, onClick)
+        ComposableSetting(modifier = Modifier.testTag("settingButton"), viewModel, onClick)
     }
 }
 

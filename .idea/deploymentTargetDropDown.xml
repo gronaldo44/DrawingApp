@@ -8,7 +8,10 @@
       <entry key="Unnamed">
         <State />
       </entry>
-      <entry key="testClearDrawing()">
+      <entry key="checkSettingButtons()">
+        <State />
+      </entry>
+      <entry key="navigateToDrawingScreen_OnButtonPress()">
         <State />
       </entry>
       <entry key="testSetBrushColor()">

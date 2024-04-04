@@ -1,15 +1,26 @@
 package com.example.drawingapp
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.fragment.app.testing.launchFragmentInContainer
 import com.example.drawingapp.view.*
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withTagValue
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import org.junit.Rule
 
 @RunWith(AndroidJUnit4::class)
@@ -78,4 +89,32 @@ class UIUnitTests {
 
     }
 
+    @Test
+    fun mainScreen_DisplayedInUi() {
+        launchFragmentInContainer<MainScreenFragment>()
+        onView(withId(R.id.mainScreenFragment)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun navigateToDrawingScreen_OnButtonPress() {
+        launchFragmentInContainer<MainScreenFragment>()
+        onView(withId(R.id.addDrawingButton)).perform(click())
+        onView(withId(R.id.drawingScreenFragment)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkSettingButtons() {
+        launchFragmentInContainer<DrawingScreenFragment>()
+        onView(withText("Shapes")).perform(click())
+        onView(withText("shapesLayoutShowing")).check(matches(isDisplayed()))
+
+        onView(withText("Color")).perform(click())
+        onView(withText("colorLayoutShowing")).check(matches(isDisplayed()))
+
+        onView(withText("Size")).perform(click())
+        onView(withText("sizeLayoutShowing")).check(matches(isDisplayed()))
+
+        onView(withText("Save")).perform(click())
+        onView(withId(R.id.mainScreenFragment)).check(matches(isDisplayed()))
+    }
 }
