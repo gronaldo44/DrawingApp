@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.model.database.DrawingRepository
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
@@ -28,15 +29,11 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     val brush: LiveData<Brush>
         get() = _brush
 
-    // LiveData for showing/hiding save/load dialog
-    private val _showSaveLoadDialog = MutableLiveData<Boolean>()
-    val showSaveLoadDialog: LiveData<Boolean>
-        get() = _showSaveLoadDialog
-
     // LiveData for storing the drawing
     private var _drawing = MutableLiveData<Drawing>()
     val drawing: LiveData<Drawing>
         get() = _drawing
+
     // This is so that the drawing does not get added if the user is only editing a drawing.
     private var isNewDrawing: Boolean = false
 
@@ -47,7 +44,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     // initialize default values
     init {
         _brush.value = Brush()
-        _showSaveLoadDialog.value = false
         _drawing.value = Drawing(ArrayList())
     }
 
@@ -88,13 +84,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
 
         // Notify observers about the updated drawing data
         _drawing.value = currentDrawing
-    }
-
-    /**
-     * Clears the current drawing.
-     */
-    fun clearDrawing() {
-        _drawing.value = Drawing(ArrayList())
     }
 
     /**
@@ -146,20 +135,15 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-     * Sets the brush size.
+     * Updates the brush
      * @param size The new size value.
      */
-    fun setBrushSize(size: Float) {
-        val currentBrush = _brush.value?.copy(size = size)
-        _brush.value = currentBrush!!
-    }
-
-    /**
-     * Sets the brush shape.
-     * @param shape The new shape value.
-     */
-    fun selectShape(shape: Brush.Shape) {
-        val currentBrush = _brush.value?.copy(selectedShape = shape)
+    fun updateBrush(size: Float? = null, color: Int? = null) {
+        val currentBrush = _brush.value?.copy()
+        if (size != null)
+            currentBrush!!.size = size
+        if (color != null)
+            currentBrush!!.color = color
         _brush.value = currentBrush!!
     }
 
@@ -172,13 +156,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-     * Marks the save/load dialog as shown.
-     */
-    fun saveLoadDialogShown() {
-        _showSaveLoadDialog.value = false
-    }
-
-    /**
      * Sets the isNewDrawing variable.
      * This is so that the drawing does not get added if the user is only editing a drawing.
      * @param isNew True if the drawing is new, false otherwise.
@@ -188,18 +165,34 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
-     * Resets the brush
-     */
-    private fun resetBrush(){
-        _brush.value = Brush()
-    }
-
-    /**
      * Resets the model
+     *
+     * This resets the brush and resets the drawing.
      */
     fun resetModel(){
-        resetBrush()
-        clearDrawing()
+        _brush.value = Brush()
+        _drawing.value = Drawing(ArrayList())
     }
-
+    /**
+     * Factory class for creating instances of [DrawingViewModel].
+     * Provides a way to pass parameters to the ViewModel class.
+     *
+     * @param repository The repository to be used by the ViewModel.
+     */
+    class DrawingViewModelFactory(private val repository: DrawingRepository) : ViewModelProvider.Factory {
+        /**
+         * Creates a new instance of the specified [ViewModel].
+         *
+         * @param modelClass The class of the ViewModel to create.
+         * @return A newly created instance of the ViewModel.
+         * @throws IllegalArgumentException if the ViewModel class is unknown.
+         */
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(DrawingViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return DrawingViewModel(repository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
 }

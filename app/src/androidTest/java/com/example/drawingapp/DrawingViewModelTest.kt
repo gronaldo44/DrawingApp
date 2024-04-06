@@ -126,7 +126,7 @@ class DrawingViewModelTest {
         val viewModel = DrawingViewModel(drawingRepository)
         val size = 10f
 
-        viewModel.setBrushSize(size)
+        viewModel.setBrush(size = size)
         val brush = viewModel.brush.value
 
         assertEquals(size, brush?.size)
