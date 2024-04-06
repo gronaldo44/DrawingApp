@@ -77,7 +77,7 @@ class MainScreenFragment : Fragment() {
             findNavController().navigate(R.id.AddDrawingClicked)
         }
 
-        var drawingsList: ArrayList<Drawing> = ArrayList()
+        var drawingsList: ArrayList<Drawing>
         // Call getAllDrawings using lifecycleScope to get the list of drawings
         viewLifecycleOwner.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
@@ -86,11 +86,11 @@ class MainScreenFragment : Fragment() {
             drawingsList = viewModel.getAllDrawings(requireContext())
             Log.d("Drawings", drawingsList.count().toString())
 
-            binding.composeView!!.setContent {
+            binding.composeView.setContent {
                 val configuration = LocalConfiguration.current
                 when (configuration.orientation) {
                     Configuration.ORIENTATION_LANDSCAPE -> {
-                        ScrollableDrawingColumnLand(
+                        ScrollableDrawingColumn(
                             data = drawingsList,
                             viewModel = viewModel,
                             viewLifecycleOwner = viewLifecycleOwner
@@ -99,7 +99,7 @@ class MainScreenFragment : Fragment() {
                         }
                     }
                     else -> {
-                        ScrollableDrawingColumnPort(
+                        ScrollableDrawingColumn(
                             data = drawingsList,
                             viewModel = viewModel,
                             viewLifecycleOwner = viewLifecycleOwner
@@ -116,40 +116,16 @@ class MainScreenFragment : Fragment() {
 }
 
 /**
- * A composable function to display a scrollable column of drawings.
- * Each drawing is represented as a ListItem, allowing interaction with the drawing view.
+ * A composable function to display a single drawing item in the list.
+ * Clicking on the item triggers the specified onClick callback.
  *
- * @param data The list of drawings to display.
+ * @param data The list of drawings used in the drawing column
  * @param viewLifecycleOwner The lifecycle owner for observing LiveData in the ViewModel.
  * @param viewModel The ViewModel instance associated with the drawing screen.
- * @param navigation The callback function to navigate to another destination.
+ * @param navigation The callback function to execute when the item is clicked.
  */
 @Composable
-fun ScrollableDrawingColumnPort(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFD3D3D3))
-    )
-    {
-        LazyColumn (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(data) { item ->
-                ListItem(viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner, drawing = item) {
-                    viewModel.resetModel()
-                    viewModel.setDrawing(item)
-                    viewModel.isNewDrawing(false)
-                    navigation()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ScrollableDrawingColumnLand(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
+fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()

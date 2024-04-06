@@ -22,16 +22,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -59,7 +55,6 @@ import kotlinx.coroutines.launch
 class DrawingScreenFragment : Fragment() {
     private lateinit var viewModel: DrawingViewModel
     private lateinit var viewModelFactory: DrawingViewModelFactory
-    private lateinit var binding: FragmentDrawingScreenBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,19 +75,20 @@ class DrawingScreenFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        binding.composeDrawingScreen?.setContent {
+        binding.composeDrawingScreen.setContent {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
-                    ComposableDrawingLand(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
+                    ComposableDrawingLand(viewModel, viewLifecycleOwner) {
                         viewModel.viewModelScope.launch {
                             viewModel.saveCurrentDrawing(requireContext())
                             findNavController().navigate(R.id.onSaved)
                         }
                     }
                 }
+
                 else -> {
-                    ComposableDrawingPort(Modifier.padding(16.dp), viewModel, viewLifecycleOwner) {
+                    ComposableDrawingPort(viewModel, viewLifecycleOwner) {
                         viewModel.viewModelScope.launch {
                             viewModel.saveCurrentDrawing(requireContext())
                             findNavController().navigate(R.id.onSaved)
@@ -107,19 +103,173 @@ class DrawingScreenFragment : Fragment() {
 }
 
 /**
+ * Composable Drawing View object. Shows the drawing at the correct time. Uses
+ * box to attain clicking and bound drawing.
+ * @param viewModel The ViewModel to communicate with
+ * @param viewLifecycleOwner Lifecycle in order to access drawing
+ */
+@Composable
+fun ComposableDrawing(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner){
+    if(viewModel.drawingVisible.value) {
+        Box(
+            modifier = Modifier
+                .size(330.dp)
+                .background(Color.White)
+                .clipToBounds()
+        ) {
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxSize(),
+                factory = { context ->
+                    DrawingView(context, null).apply {
+                        setViewModel(viewModel, viewLifecycleOwner)
+                        setIsDrawing(true)
+                    }
+                }
+            )
+        }
+    }
+}
+
+/**
+ * Composable Color Selector object. Shows Color Selector in which the user can select a color
+ * to draw with
+ * @param viewModel The ViewModel to communicate with
+ */
+@Composable
+fun ComposableColorSelector(viewModel: DrawingViewModel){
+    if (viewModel.colorPickerVisible.value) {
+        AndroidView(
+            modifier = Modifier
+                .padding(16.dp)
+                .size(320.dp)
+                .wrapContentSize()
+                .testTag("colorLayoutShowing"),
+            factory = { context ->
+                ColorPickerView(context, null).apply {
+                    addOnColorChangedListener { selectedColor ->
+                        viewModel.setBrushColor(selectedColor)
+                        viewModel.colorPickerVisible.value = !viewModel.colorPickerVisible.value
+                        viewModel.drawingVisible.value = true
+                    }
+                }
+            }
+        )
+    }
+}
+
+/**
+ * Composable Shape Selector object. Shows the four selectable shapes.
+ * Path, Circle, Rectangle, Triangle. Offers button for each to select
+ * @param viewModel The ViewModel to communicate with
+ */
+@Composable
+fun ComposableShapeSelector(viewModel: DrawingViewModel){
+    if (viewModel.shapeLayoutVisible.value) {
+        Row(
+            modifier = Modifier.padding(8.dp)
+                .testTag("shapesLayoutShowing"),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = { viewModel.selectShape(Brush.Shape.PATH)
+                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
+                viewModel.drawingVisible.value = true}) {
+                Text("Path")
+            }
+            Button(onClick = { viewModel.selectShape(Brush.Shape.RECTANGLE)
+                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
+                viewModel.drawingVisible.value = true}) {
+                Text("Rect")
+            }
+            Button(onClick = { viewModel.selectShape(Brush.Shape.CIRCLE)
+                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
+                viewModel.drawingVisible.value = true}) {
+                Text("Circle")
+            }
+            Button(onClick = { viewModel.selectShape(Brush.Shape.TRIANGLE)
+                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
+                viewModel.drawingVisible.value = true}) {
+                Text("Triangle")
+            }
+        }
+    }
+}
+
+/**
+ * Composable Size Selector object.Shows slider and button to select size
+ * Sends to view model
+ * @param viewModel The ViewModel to communicate with
+ */
+@Composable
+fun ComposableSizeSelector(viewModel: DrawingViewModel){
+    if (viewModel.sizeLayoutVisible.value) {
+        Column {
+            Slider(
+                value = viewModel.sliderPosition.value,
+                onValueChange = { viewModel.sliderPosition.value = it },
+                valueRange = 0f..100f,
+                modifier = Modifier.padding(horizontal = 32.dp)
+                                    .testTag("sizeLayoutShowing")
+            )
+            Button(
+                onClick = {
+                    viewModel.setBrushSize(viewModel.sliderPosition.value)
+                    viewModel.sizeLayoutVisible.value = !viewModel.sizeLayoutVisible.value
+                    viewModel.drawingVisible.value = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text("Pick Size")
+            }
+        }
+    }
+}
+
+/**
+ * Composable Setting object. Shows the four setting buttons in the UI.
+ * Size, Color, Shapes, and Save. Responsible for showing correct views at correct time
+ * @param modifier The Modifier for UI customization
+ * @param viewModel The ViewModel to communicate with
+ * @param onClick Click listener for the save button
+ */
+@Composable
+fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: () -> Unit){
+    Button(onClick = { viewModel.colorPickerVisible.value = !viewModel.colorPickerVisible.value
+        viewModel.sizeLayoutVisible.value = false
+        viewModel.shapeLayoutVisible.value = false
+        viewModel.drawingVisible.value = !viewModel.drawingVisible.value},
+        modifier = modifier.testTag("Color")) {
+        Text("Color")
+    }
+    Button(onClick = { viewModel.sizeLayoutVisible.value  = !viewModel.sizeLayoutVisible.value
+        viewModel.colorPickerVisible.value = false
+        viewModel.shapeLayoutVisible.value = false
+        viewModel.drawingVisible.value = true},
+        modifier = modifier.testTag("Size")) {
+        Text("Size")
+    }
+    Button(onClick = { viewModel.shapeLayoutVisible.value  = !viewModel.shapeLayoutVisible.value
+        viewModel.colorPickerVisible.value = false
+        viewModel.sizeLayoutVisible.value = false
+        viewModel.drawingVisible.value = true},
+        modifier = modifier.testTag("Shapes")) {
+        Text("Shapes")
+    }
+    Button(onClick = onClick, modifier = modifier.testTag("Save")) {
+        Text("Save")
+    }
+}
+
+/**
  * Composable function responsible for rendering the drawing screen in portrait mode.
  * It provides UI elements for interacting with the drawing, such as color picker, shape selection,
  * brush size picker, and save button.
  */
 @Composable
-fun ComposableDrawingPort(modifier: Modifier = Modifier, viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
                           onClick: ()->Unit){
-    // Assuming viewModel has properties to control visibility and other interactions
-    val drawingVisible = remember { mutableStateOf(true) }
-    val colorPickerVisible = remember { mutableStateOf(false) }
-    val shapeLayoutVisible = remember { mutableStateOf(false) }
-    val sizeLayoutVisible = remember { mutableStateOf(false) }
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -129,92 +279,12 @@ fun ComposableDrawingPort(modifier: Modifier = Modifier, viewModel: DrawingViewM
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(1.1f))
-            if(drawingVisible.value) {
-                Box(
-                    modifier = Modifier
-                        .size(330.dp)
-                        .background(Color.White)
-                        .clipToBounds()
-                ) {
-                    AndroidView(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        factory = { context ->
-                            DrawingView(context, null).apply {
-                                setViewModel(viewModel, viewLifecycleOwner)
-                                setIsDrawing(true)
-                            }
-                        }
-                    )
-                }
-            }
-
-            if (colorPickerVisible.value) {
-                AndroidView(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .size(320.dp)
-                        .wrapContentSize(),
-                    factory = { context ->
-                        ColorPickerView(context, null).apply {
-                            addOnColorChangedListener { selectedColor ->
-                                viewModel.setBrushColor(selectedColor)
-                                colorPickerVisible.value = !colorPickerVisible.value
-                                drawingVisible.value = true
-                            }
-                        }
-                    }
-                )
-            }
-
-            if (shapeLayoutVisible.value) {
-                Row(
-                    modifier = Modifier.padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(onClick = { viewModel.selectShape(Brush.Shape.PATH)
-                        shapeLayoutVisible.value = !shapeLayoutVisible.value}) {
-                        Text("Path")
-                    }
-                    Button(onClick = { viewModel.selectShape(Brush.Shape.RECTANGLE)
-                        shapeLayoutVisible.value = !shapeLayoutVisible.value}) {
-                        Text("Rect")
-                    }
-                    Button(onClick = { viewModel.selectShape(Brush.Shape.CIRCLE)
-                        shapeLayoutVisible.value = !shapeLayoutVisible.value}) {
-                        Text("Circle")
-                    }
-                    Button(onClick = { viewModel.selectShape(Brush.Shape.TRIANGLE)
-                        shapeLayoutVisible.value = !shapeLayoutVisible.value}) {
-                        Text("Triangle")
-                    }
-                }
-            }
-
-            if (sizeLayoutVisible.value) {
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
-                    valueRange = 0f..100f,
-                    modifier = Modifier.padding(horizontal = 32.dp)
-                )
-                Button(
-                    onClick = {
-                        viewModel.setBrushSize(sliderPosition)
-                        sizeLayoutVisible.value = !sizeLayoutVisible.value
-                              },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
-                ) {
-                    Text("Pick Size")
-                }
-            }
-
             Spacer(modifier = Modifier.weight(1f))
-
-
+            ComposableDrawing(viewModel, viewLifecycleOwner)
+            ComposableColorSelector(viewModel)
+            ComposableShapeSelector(viewModel)
+            ComposableSizeSelector(viewModel)
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
     Row(
@@ -223,27 +293,7 @@ fun ComposableDrawingPort(modifier: Modifier = Modifier, viewModel: DrawingViewM
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Button(onClick = { colorPickerVisible.value = !colorPickerVisible.value
-            sizeLayoutVisible.value = false
-            shapeLayoutVisible.value = false
-            drawingVisible.value = !drawingVisible.value}) {
-            Text("Color")
-        }
-        Button(onClick = { sizeLayoutVisible.value  = !sizeLayoutVisible.value
-            colorPickerVisible.value = false
-            shapeLayoutVisible.value = false
-            drawingVisible.value = true}) {
-            Text("Size")
-        }
-        Button(onClick = { shapeLayoutVisible.value  = !shapeLayoutVisible.value
-            colorPickerVisible.value = false
-            sizeLayoutVisible.value = false
-            drawingVisible.value = true}) {
-            Text("Shapes")
-        }
-        Button(onClick = onClick) {
-            Text("Save")
-        }
+        ComposableSetting(modifier = Modifier.testTag("settingButton"), viewModel, onClick)
     }
 }
 
@@ -253,15 +303,8 @@ fun ComposableDrawingPort(modifier: Modifier = Modifier, viewModel: DrawingViewM
  * brush size picker, and save button.
  */
 @Composable
-fun ComposableDrawingLand(modifier: Modifier = Modifier, viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
                           onClick: ()->Unit){
-    // States for visibility toggles
-    val drawingVisible = remember { mutableStateOf(true) }
-    val colorPickerVisible = remember { mutableStateOf(false) }
-    val shapeLayoutVisible = remember { mutableStateOf(false) }
-    val sizeLayoutVisible = remember { mutableStateOf(false) }
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
-
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -277,138 +320,18 @@ fun ComposableDrawingLand(modifier: Modifier = Modifier, viewModel: DrawingViewM
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = { colorPickerVisible.value = true
-                    sizeLayoutVisible.value = false
-                    shapeLayoutVisible.value = false
-                    drawingVisible.value = false},
+            ComposableSetting(
                 modifier = Modifier
-                    .padding(top = 5.dp, bottom = 5.dp)
-                    .height(60.dp)
-            ) {
-                Text("Color")
-            }
-            Button(
-                onClick = { sizeLayoutVisible.value  = true
-                    colorPickerVisible.value = false
-                    shapeLayoutVisible.value = false
-                    drawingVisible.value = false },
-                modifier = Modifier
-                    .padding(bottom = 5.dp)
-                    .height(60.dp)
-            ) {
-                Text("Size")
-            }
-            Button(
-                onClick = { shapeLayoutVisible.value  = true
-                    colorPickerVisible.value = false
-                    sizeLayoutVisible.value = false
-                    drawingVisible.value = false },
-                modifier = Modifier
-                    .padding(bottom = 5.dp)
-                    .height(60.dp)
-            ) {
-                Text("Shapes")
-            }
-            Button(
-                onClick = onClick,
-                modifier = Modifier
-                    .padding(bottom = 5.dp)
-                    .height(60.dp)
-            ) {
-                Text("Save")
-            }
+                .padding(top = 5.dp, bottom = 5.dp)
+                .height(60.dp), viewModel, onClick)
         }
 
-        if(drawingVisible.value) {
-            Spacer(modifier = Modifier.weight(1f))
-            Box(
-                modifier = Modifier
-                    .size(330.dp)
-                    .background(Color.White)
-                    .clipToBounds()
-            ) {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    factory = { context ->
-                        DrawingView(context, null).apply {
-                            setViewModel(viewModel, viewLifecycleOwner)
-                            setIsDrawing(true)
-                        }
-                    }
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
-        // ColorPickerView - Hidden by default, visibility toggled by a button
-        if (colorPickerVisible.value) {
-            Spacer(modifier = Modifier.weight(1f))
-            AndroidView(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(320.dp)
-                    .wrapContentSize(),
-                factory = { context ->
-                    ColorPickerView(context, null).apply {
-                        addOnColorChangedListener { selectedColor ->
-                            viewModel.setBrushColor(selectedColor)
-                            colorPickerVisible.value = !colorPickerVisible.value
-                            drawingVisible.value = true
-                        }
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
-        // Shape Layout - Hidden by default, visibility toggled by a button
-        if (shapeLayoutVisible.value) {
-            Spacer(modifier = Modifier.weight(1f))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Button(onClick = { viewModel.selectShape(Brush.Shape.PATH)
-                    shapeLayoutVisible.value = !shapeLayoutVisible.value
-                    drawingVisible.value = true}) { Text("Path") }
-                Button(onClick = { viewModel.selectShape(Brush.Shape.RECTANGLE)
-                    shapeLayoutVisible.value = !shapeLayoutVisible.value
-                    drawingVisible.value = true}) { Text("Rect") }
-                Button(onClick = { viewModel.selectShape(Brush.Shape.CIRCLE)
-                    shapeLayoutVisible.value = !shapeLayoutVisible.value
-                    drawingVisible.value = true}) { Text("Circle") }
-                Button(onClick = { viewModel.selectShape(Brush.Shape.TRIANGLE)
-                    shapeLayoutVisible.value = !shapeLayoutVisible.value
-                    drawingVisible.value = true}) { Text("Triangle") }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
-        // Size Layout - Hidden by default, visibility toggled by a button
-        if (sizeLayoutVisible.value) {
-            Spacer(modifier = Modifier.weight(1f))
-            Column {
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
-                    valueRange = 0f..100f,
-                    modifier = Modifier.padding(horizontal = 32.dp)
-                )
-                Button(
-                    onClick = {
-                        viewModel.setBrushSize(sliderPosition)
-                        sizeLayoutVisible.value = !sizeLayoutVisible.value
-                        drawingVisible.value = true
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
-                ) {
-                    Text("Pick Size")
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
+        Spacer(modifier = Modifier.weight(1f))
+        ComposableDrawing(viewModel, viewLifecycleOwner)
+        ComposableColorSelector(viewModel)
+        ComposableShapeSelector(viewModel)
+        ComposableSizeSelector(viewModel)
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
+

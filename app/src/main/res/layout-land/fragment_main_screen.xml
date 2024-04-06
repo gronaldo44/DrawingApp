@@ -11,12 +11,6 @@
         android:orientation="vertical">
 
         <!-- Add Drawing Button at the top -->
-        <Button
-            android:id="@+id/addDrawingButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Drawing"
-            android:layout_marginTop="28dp"/>
 
         <!-- Text View for MyDrawings -->
         <TextView
@@ -32,8 +26,14 @@
         <androidx.compose.ui.platform.ComposeView
             android:id="@+id/compose_view"
             android:layout_width="match_parent"
-            android:background="#D3D3D3"
-            android:layout_height="match_parent" />
+            android:layout_height="249dp"
+            android:background="#D3D3D3" />
+
+        <Button
+            android:id="@+id/addDrawingButton"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:text="Add Drawing" />
 
     </LinearLayout>
 

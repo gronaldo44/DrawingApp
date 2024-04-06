@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Path
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,6 +43,14 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     val saveCompletionChannel = Channel<Unit>()
     private var saveInProgress = false
     private val saveSemaphore = Semaphore(1)
+
+    // ViewModel components for UI
+    val drawingVisible: MutableState<Boolean> = mutableStateOf(true)
+    val shapeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val colorPickerVisible: MutableState<Boolean> = mutableStateOf(false)
+    val sizeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val sliderPosition: MutableState<Float> = mutableFloatStateOf(0f)
+
 
     // initialize default values
     init {
@@ -166,8 +177,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
 
     /**
      * Resets the model
-     *
-     * This resets the brush and resets the drawing.
      */
     fun resetModel(){
         _brush.value = Brush()

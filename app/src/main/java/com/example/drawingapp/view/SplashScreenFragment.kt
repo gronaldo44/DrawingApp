@@ -45,16 +45,16 @@ class SplashScreenFragment : Fragment() {
         Log.d("Creating View", "SplashScreenFragment")
 
         binding = FragmentSplashScreenBinding.inflate(layoutInflater,  container, false)
-        binding.composeSplashScreen?.setContent {
+        binding.composeSplashScreen.setContent {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
-                    ComposableSplashLand(Modifier.padding(16.dp)){
+                    ComposableSplashLand{
                         findNavController().navigate(R.id.closedSplashScreen)
                     }
                 }
                 else -> {
-                    ComposableSplashPort(Modifier.padding(16.dp)){
+                    ComposableSplashPort{
                         findNavController().navigate(R.id.closedSplashScreen)
                     }
                 }
@@ -64,110 +64,88 @@ class SplashScreenFragment : Fragment() {
     }
 }
 
+// Shared Composable Functions
 /**
- * Composable function for displaying the Splash screen layout in portrait orientation.
- *
- * @param modifier Modifier for the layout
- * @param onClick Callback function to handle button click event
+ * Displays the drawing logo on the screen
  */
 @Composable
-fun ComposableSplashPort(modifier: Modifier = Modifier,
-                 onClick: ()->Unit){
+fun AppLogo(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(id = R.drawable.paintlogo),
+        contentDescription = "App Logo",
+        modifier = modifier
+    )
+}
+
+/**
+ * Welcome message displayed on the splash screen
+ */
+@Composable
+fun WelcomeMessage(textSize: Int, modifier: Modifier = Modifier) {
+    Text(
+        text = "Welcome To Our Drawing App",
+        modifier = modifier,
+        fontSize = textSize.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!",
+        modifier = modifier,
+        fontSize = (textSize.sp.value - 12).sp,
+        textAlign = TextAlign.Center
+    )
+}
+
+/**
+ * Continue button used to navigate to the main screen
+ */
+@Composable
+fun ContinueToAppButton(onClick: ()->Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Text(text = "Continue To App")
+    }
+}
+
+// Portrait and Landscape Composable using shared elements
+@Composable
+fun ComposableSplashPort(onClick: ()->Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Image(
-            painter = painterResource(id = R.drawable.paintlogo),
-            contentDescription = "App Logo",
-            modifier = Modifier
-                .fillMaxWidth(0.4f)
-        )
-
-        Text(
-            text = "Welcome To Our Drawing App",
-            modifier = Modifier
-                .fillMaxWidth(),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = "In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!",
-            modifier = Modifier
+        AppLogo(Modifier.fillMaxWidth(0.4f))
+        WelcomeMessage(28,
+            Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center
-        )
-
-        Button(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(0.5f)
-        ) {
-            Text(text = "Continue To App")
-        }
+                .padding(10.dp))
+        ContinueToAppButton(onClick, Modifier.fillMaxWidth(0.5f))
     }
 }
 
-/**
- * Composable function for displaying the Splash screen layout in landscape orientation.
- *
- * @param modifier Modifier for the layout
- * @param onClick Callback function to handle button click event
- */
 @Composable
-fun ComposableSplashLand(modifier: Modifier = Modifier,
-                     onClick: ()->Unit){
+fun ComposableSplashLand(onClick: ()->Unit) {
     Row(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
+                .padding(top = 16.dp),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.paintlogo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-            )
-
-            Button(
-                onClick = onClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text("Continue To App")
-            }
+            AppLogo(Modifier.fillMaxWidth())
+            ContinueToAppButton(onClick, Modifier.fillMaxWidth())
         }
-
-        // Container for welcome message and content message (2/3 of width)
         Column(
             modifier = Modifier
                 .weight(2f)
                 .fillMaxHeight()
+                .padding(end = 16.dp, top = 50.dp),
         ) {
-            Text(
-                text = "Welcome To Our Drawing App",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 16.dp, top = 50.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = "In this app you can create drawings through a paint type editor. You can add, edit, and remove such drawings. Please continue to the next screen in order to create a drawing!",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp),
-                fontSize = 26.sp
-            )
+            WelcomeMessage(36, Modifier.fillMaxWidth())
         }
     }
 }
