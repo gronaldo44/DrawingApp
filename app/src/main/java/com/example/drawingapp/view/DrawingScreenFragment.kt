@@ -171,22 +171,22 @@ fun ComposableShapeSelector(viewModel: DrawingViewModel){
                 .testTag("shapesLayoutShowing"),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { viewModel.selectShape(Brush.Shape.PATH)
+            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.PATH)
                 viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
                 viewModel.drawingVisible.value = true}) {
                 Text("Path")
             }
-            Button(onClick = { viewModel.selectShape(Brush.Shape.RECTANGLE)
+            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.RECTANGLE)
                 viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
                 viewModel.drawingVisible.value = true}) {
                 Text("Rect")
             }
-            Button(onClick = { viewModel.selectShape(Brush.Shape.CIRCLE)
+            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.CIRCLE)
                 viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
                 viewModel.drawingVisible.value = true}) {
                 Text("Circle")
             }
-            Button(onClick = { viewModel.selectShape(Brush.Shape.TRIANGLE)
+            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.TRIANGLE)
                 viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
                 viewModel.drawingVisible.value = true}) {
                 Text("Triangle")
@@ -213,7 +213,7 @@ fun ComposableSizeSelector(viewModel: DrawingViewModel){
             )
             Button(
                 onClick = {
-                    viewModel.setBrushSize(viewModel.sliderPosition.value)
+                    viewModel.updateBrush(size=viewModel.sliderPosition.value)
                     viewModel.sizeLayoutVisible.value = !viewModel.sizeLayoutVisible.value
                     viewModel.drawingVisible.value = true
                 },

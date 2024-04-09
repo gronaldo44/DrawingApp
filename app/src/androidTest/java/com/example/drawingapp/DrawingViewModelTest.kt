@@ -126,7 +126,7 @@ class DrawingViewModelTest {
         val viewModel = DrawingViewModel(drawingRepository)
         val size = 10f
 
-        viewModel.setBrush(size = size)
+        viewModel.updateBrush(size = size)
         val brush = viewModel.brush.value
 
         assertEquals(size, brush?.size)
@@ -137,7 +137,7 @@ class DrawingViewModelTest {
         val viewModel = DrawingViewModel(drawingRepository)
         val shape = Brush.Shape.CIRCLE
 
-        viewModel.selectShape(shape)
+        viewModel.updateBrush(shape=shape)
         val brush = viewModel.brush.value
 
         assertEquals(shape, brush?.selectedShape)
@@ -160,12 +160,12 @@ class DrawingViewModelTest {
     }
 
     @Test
-    fun testClearDrawing() {
+    fun testResetModel() {
         val viewModel = DrawingViewModel(drawingRepository)
         val path = Path()
 
         viewModel.addPath(path, Color.RED, 5f)
-        viewModel.clearDrawing()
+        viewModel.resetModel()
         val drawing = viewModel.drawing
 
         assertEquals(0,  drawing.value?.paths?.size)
