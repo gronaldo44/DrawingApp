@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.drawingapp.model.database.DrawingRepository
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
@@ -56,7 +55,9 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     init {
         _brush.value = Brush()
         _drawing.value = Drawing(ArrayList())
+        System.loadLibrary("drawingapp")
     }
+
 
     /**
      * Semaphore ensures that only one coroutine can proceed at a time.
@@ -143,6 +144,11 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     fun setBrushColor(color: Int) {
         val currentBrush = _brush.value?.copy(color = color)
         _brush.value = currentBrush!!
+
+        // TODO DELETE ME AND PLACE INTO NEW BUTTON
+        //blankPaths()
+        //scalePaths(2.0F)
+        invertColor()
     }
 
     /**
@@ -178,6 +184,23 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
+     * Sets color of all paths white
+     */
+    fun blankPaths(){
+        _drawing.value?.let{ makePathsWhiteJIN(it) }
+    }
+    fun scalePaths(scalar: Float){
+        _drawing.value?.let { multPathSizeJIN(it, scalar) }
+    }
+    fun invertColor(){
+        _drawing.value?.let { invertPathColorsJIN(it) }
+    }
+
+    external fun makePathsWhiteJIN(drawing: Drawing)
+    external fun multPathSizeJIN(drawing: Drawing, scaleFactor: Float)
+    external fun invertPathColorsJIN(drawing: Drawing)
+
+    /**
      * Resets the model
      */
     fun resetModel(){
@@ -185,3 +208,4 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _drawing.value = Drawing(ArrayList())
     }
 }
+

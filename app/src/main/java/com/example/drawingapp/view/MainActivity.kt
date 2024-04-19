@@ -13,6 +13,12 @@ import com.example.drawingapp.viewmodel.DrawingViewModelFactory
  * Holds the container for every single one of the fragments.
  */
 class MainActivity : AppCompatActivity() {
+    companion object {
+      init {
+         System.loadLibrary("drawingapp")
+      }
+    }
+
     /**
      * When the app is created set the content views to the main activity and run
      */

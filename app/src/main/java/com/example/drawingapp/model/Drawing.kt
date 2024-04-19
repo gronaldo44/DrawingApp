@@ -16,10 +16,17 @@ import java.io.File
  * @property paths The list of paths in the drawing.
  * @property id The identifier for the drawing.
  */
-data class Drawing(val paths: ArrayList<PathData>){
+data class Drawing(val paths: ArrayList<PathData>) {
     var id: Long = -1   // tmp value
 }
 
+/**
+ * Represents path data containing the path, color, and size information.
+ * @property path The Path object representing the drawing path.
+ * @property color The color of the path.
+ * @property size The size of the path.
+ */
+data class PathData(val path: Path, var color: Int, val size: Float)
 /**
  * Represents serialized path data for storage and retrieval.
  * @property path The serialized path data.
@@ -27,13 +34,6 @@ data class Drawing(val paths: ArrayList<PathData>){
  * @property size The size of the path.
  */
 data class SerializedPathData(val path: String, val color: String, val size: String)
-/**
- * Represents path data containing the path, color, and size information.
- * @property path The Path object representing the drawing path.
- * @property color The color of the path.
- * @property size The size of the path.
- */
-data class PathData(val path: Path, val color: Int, val size: Float)
 
 /**
  * Represents a drawing entity for database operations.
@@ -140,4 +140,5 @@ object DrawingSerializer {
         drawing.id = dbDrawing.id
         return drawing
     }
+
 }
