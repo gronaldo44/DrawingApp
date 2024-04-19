@@ -164,36 +164,100 @@ fun ComposableColorSelector(viewModel: DrawingViewModel){
  * @param viewModel The ViewModel to communicate with
  */
 @Composable
-fun ComposableShapeSelector(viewModel: DrawingViewModel){
+fun ComposableShapeSelector(viewModel: DrawingViewModel) {
+    val configuration = LocalConfiguration.current
     if (viewModel.shapeLayoutVisible.value) {
-        Row(
-            modifier = Modifier.padding(8.dp)
-                .testTag("shapesLayoutShowing"),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.PATH)
-                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
-                viewModel.drawingVisible.value = true}) {
-                Text("Path")
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Use Column layout in landscape mode
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("shapesLayoutShowing"),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ShapeButton("Path", Brush.Shape.PATH, viewModel)
+                ShapeButton("Rect", Brush.Shape.RECTANGLE, viewModel)
+                ShapeButton("Circle", Brush.Shape.CIRCLE, viewModel)
+                ShapeButton("Triangle", Brush.Shape.TRIANGLE, viewModel)
             }
-            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.RECTANGLE)
-                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
-                viewModel.drawingVisible.value = true}) {
-                Text("Rect")
-            }
-            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.CIRCLE)
-                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
-                viewModel.drawingVisible.value = true}) {
-                Text("Circle")
-            }
-            Button(onClick = { viewModel.updateBrush(shape=Brush.Shape.TRIANGLE)
-                viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
-                viewModel.drawingVisible.value = true}) {
-                Text("Triangle")
+        } else {
+            // Use Row layout in portrait mode
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("shapesLayoutShowing"),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ShapeButton("Path", Brush.Shape.PATH, viewModel)
+                ShapeButton("Rect", Brush.Shape.RECTANGLE, viewModel)
+                ShapeButton("Circle", Brush.Shape.CIRCLE, viewModel)
+                ShapeButton("Triangle", Brush.Shape.TRIANGLE, viewModel)
             }
         }
     }
 }
+
+/**
+ * Helper composable function to create a button for each shape
+ */
+@Composable
+fun ShapeButton(label: String, shape: Brush.Shape, viewModel: DrawingViewModel) {
+    Button(onClick = {
+        viewModel.updateBrush(shape = shape)
+        viewModel.shapeLayoutVisible.value = !viewModel.shapeLayoutVisible.value
+        viewModel.drawingVisible.value = true
+    }) {
+        Text(label)
+    }
+}
+
+@Composable
+fun ComposableModifierSelector(viewModel: DrawingViewModel) {
+    val configuration = LocalConfiguration.current
+    if (viewModel.modifierLayoutVisible.value) {
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Use Column layout in landscape mode
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("modifierLayoutShowing"),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ModifierButton("Blank", { viewModel.blankPaths() }, viewModel)
+                ModifierButton("Invert", { viewModel.invertColor() }, viewModel)
+                ModifierButton("Scale", { viewModel.scalePaths(2.0F) }, viewModel)
+            }
+        } else {
+            // Use Row layout in portrait mode
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("modifierLayoutShowing"),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ModifierButton("Blank", { viewModel.blankPaths() }, viewModel)
+                ModifierButton("Invert", { viewModel.invertColor() }, viewModel)
+                ModifierButton("Scale", { viewModel.scalePaths(2.0F) }, viewModel)
+            }
+        }
+    }
+}
+
+/**
+ * Helper composable function to create a button for each modifier
+ */
+@Composable
+fun ModifierButton(label: String, action: () -> Unit, viewModel: DrawingViewModel) {
+    Button(onClick = {
+        action()
+        viewModel.modifierLayoutVisible.value = !viewModel.modifierLayoutVisible.value
+        viewModel.drawingVisible.value = true
+    }) {
+        Text(label)
+    }
+}
+
 
 /**
  * Composable Size Selector object.Shows slider and button to select size
@@ -208,8 +272,9 @@ fun ComposableSizeSelector(viewModel: DrawingViewModel){
                 value = viewModel.sliderPosition.value,
                 onValueChange = { viewModel.sliderPosition.value = it },
                 valueRange = 0f..100f,
-                modifier = Modifier.padding(horizontal = 32.dp)
-                                    .testTag("sizeLayoutShowing")
+                modifier = Modifier
+                    .padding(horizontal = 32.dp)
+                    .testTag("sizeLayoutShowing")
             )
             Button(
                 onClick = {
@@ -235,8 +300,9 @@ fun ComposableSizeSelector(viewModel: DrawingViewModel){
  * @param onClick Click listener for the save button
  */
 @Composable
-fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: () -> Unit){
+fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel){
     Button(onClick = { viewModel.colorPickerVisible.value = !viewModel.colorPickerVisible.value
+        viewModel.modifierLayoutVisible.value = false
         viewModel.sizeLayoutVisible.value = false
         viewModel.shapeLayoutVisible.value = false
         viewModel.drawingVisible.value = !viewModel.drawingVisible.value},
@@ -244,6 +310,7 @@ fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: 
         Text("Color")
     }
     Button(onClick = { viewModel.sizeLayoutVisible.value  = !viewModel.sizeLayoutVisible.value
+        viewModel.modifierLayoutVisible.value = false
         viewModel.colorPickerVisible.value = false
         viewModel.shapeLayoutVisible.value = false
         viewModel.drawingVisible.value = true},
@@ -251,12 +318,25 @@ fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: 
         Text("Size")
     }
     Button(onClick = { viewModel.shapeLayoutVisible.value  = !viewModel.shapeLayoutVisible.value
+        viewModel.modifierLayoutVisible.value = false
         viewModel.colorPickerVisible.value = false
         viewModel.sizeLayoutVisible.value = false
         viewModel.drawingVisible.value = true},
         modifier = modifier.testTag("Shapes")) {
         Text("Shapes")
     }
+    Button(onClick = { viewModel.modifierLayoutVisible.value  = !viewModel.modifierLayoutVisible.value
+        viewModel.colorPickerVisible.value = false
+        viewModel.sizeLayoutVisible.value = false
+        viewModel.shapeLayoutVisible.value = false
+        viewModel.drawingVisible.value = true},
+        modifier = modifier.testTag("Modifiers")) {
+        Text("Modifiers")
+    }
+}
+
+@Composable
+fun ComposableSave(modifier: Modifier, onClick: () -> Unit){
     Button(onClick = onClick, modifier = modifier.testTag("Save")) {
         Text("Save")
     }
@@ -270,30 +350,34 @@ fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel, onClick: 
 @Composable
 fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
                           onClick: ()->Unit){
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFD3D3D3))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-            ComposableDrawing(viewModel, viewLifecycleOwner)
-            ComposableColorSelector(viewModel)
-            ComposableShapeSelector(viewModel)
-            ComposableSizeSelector(viewModel)
-            Spacer(modifier = Modifier.weight(1f))
+            ComposableSetting(modifier = Modifier.testTag("settingButton"), viewModel)
         }
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        ComposableSetting(modifier = Modifier.testTag("settingButton"), viewModel, onClick)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFD3D3D3))
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                ComposableDrawing(viewModel, viewLifecycleOwner)
+                ComposableColorSelector(viewModel)
+                ComposableShapeSelector(viewModel)
+                ComposableModifierSelector(viewModel)
+                ComposableSizeSelector(viewModel)
+                Spacer(modifier = Modifier.weight(1f))
+                ComposableSave(modifier = Modifier.testTag("saveButton").fillMaxWidth(), onClick)
+            }
+        }
     }
 }
 
@@ -322,16 +406,22 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
         ) {
             ComposableSetting(
                 modifier = Modifier
+                    .padding(top = 5.dp, bottom = 5.dp)
+                    .height(60.dp), viewModel)
+            ComposableSave(modifier = Modifier
+                .testTag("saveButton")
                 .padding(top = 5.dp, bottom = 5.dp)
-                .height(60.dp), viewModel, onClick)
+                .height(60.dp), onClick)
         }
 
         Spacer(modifier = Modifier.weight(1f))
         ComposableDrawing(viewModel, viewLifecycleOwner)
         ComposableColorSelector(viewModel)
         ComposableShapeSelector(viewModel)
+        ComposableModifierSelector(viewModel)
         ComposableSizeSelector(viewModel)
         Spacer(modifier = Modifier.weight(1f))
+
     }
 }
 

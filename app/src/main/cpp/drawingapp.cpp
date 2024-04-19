@@ -85,25 +85,20 @@ Java_com_example_drawingapp_viewmodel_DrawingViewModel_multPathSizeJIN(JNIEnv *e
 
 JNIEXPORT void JNICALL
 Java_com_example_drawingapp_viewmodel_DrawingViewModel_makePathsWhiteJIN(JNIEnv *env, jobject thiz,
-                                                                         jobject drawing_obj) {
+        jobject drawing_obj) {
     jclass drawingClass = env->GetObjectClass(drawing_obj);
     jfieldID pathsFieldID = env->GetFieldID(drawingClass, "paths", "Ljava/util/ArrayList;");
     jobject pathsListObj = env->GetObjectField(drawing_obj, pathsFieldID);
 
     jclass arrayListClass = env->GetObjectClass(pathsListObj);
     jmethodID sizeMethodID = env->GetMethodID(arrayListClass, "size", "()I");
-    jmethodID getMethodID = env->GetMethodID(arrayListClass, "get", "(I)Ljava/lang/Object;");
+    jmethodID removeMethodID = env->GetMethodID(arrayListClass, "remove", "(I)Ljava/lang/Object;");
 
-    jint pathsListSize = env->CallIntMethod(pathsListObj, sizeMethodID);
-    for (int i = 0; i < pathsListSize; ++i) {
-        jobject pathDataObj = env->CallObjectMethod(pathsListObj, getMethodID, i);
-        jclass pathDataClass = env->GetObjectClass(pathDataObj);
-        jfieldID colorFieldID = env->GetFieldID(pathDataClass, "color", "I");
-
-        // Set the color to white (0xFFFFFFFF)
-        env->SetIntField(pathDataObj, colorFieldID, 0xFFFFFFFF);
+    while (env->CallIntMethod(pathsListObj, sizeMethodID) > 0) {
+        env->CallObjectMethod(pathsListObj, removeMethodID, 0);
     }
 }
+
 
 JNIEXPORT void JNICALL
 Java_com_example_drawingapp_viewmodel_DrawingViewModel_invertPathColorsJIN(JNIEnv *env,

@@ -46,6 +46,7 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     // ViewModel components for UI
     val drawingVisible: MutableState<Boolean> = mutableStateOf(true)
     val shapeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val modifierLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
     val colorPickerVisible: MutableState<Boolean> = mutableStateOf(false)
     val sizeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
     val sliderPosition: MutableState<Float> = mutableFloatStateOf(0f)
@@ -144,11 +145,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     fun setBrushColor(color: Int) {
         val currentBrush = _brush.value?.copy(color = color)
         _brush.value = currentBrush!!
-
-        // TODO DELETE ME AND PLACE INTO NEW BUTTON
-        //blankPaths()
-        //scalePaths(2.0F)
-        invertColor()
     }
 
     /**
