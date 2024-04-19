@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
@@ -12,6 +13,7 @@ import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
 import kotlin.math.hypot
+import com.example.drawingapp.viewmodel.DrawingViewObserver
 
 /**
  * Custom View for drawing functionality.
@@ -19,7 +21,8 @@ import kotlin.math.hypot
  * This view allows users to draw on a canvas using touch gestures.
  * It supports setting brush color and size based on the provided ViewModel.
  */
-class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs),
+    DrawingViewObserver {
 
     private lateinit var drawPaint: Paint
     private var isDrawingShapes = false
@@ -53,6 +56,20 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        Log.d("Removing Observer", "Detached From Window")
+        super.onDetachedFromWindow()
+        viewModel?.removeObserver(this)
+    }
+
+    /**
+     * Redraws the canvas
+     */
+    override fun redrawCanvas() {
+        Log.d("DrawingView Observed", "Redrawing Canvas")
+        invalidate()
     }
 
     /**
@@ -178,6 +195,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             drawPaint.strokeWidth = brush.size
             previewPaint.strokeWidth = brush.size
         })
+        viewModel.addObserver(this)
     }
 
     /**

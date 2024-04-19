@@ -17,6 +17,8 @@ import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -51,6 +53,9 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     val sizeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
     val sliderPosition: MutableState<Float> = mutableFloatStateOf(0f)
 
+    // Observers to tell the DrawingView to redraw
+    private val observers = mutableListOf<DrawingViewObserver>()
+
 
     // initialize default values
     init {
@@ -59,6 +64,27 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         System.loadLibrary("drawingapp")
     }
 
+    /**
+     * Adds a DrawingView observer
+     */
+    fun addObserver(observer: DrawingViewObserver) {
+        observers.add(observer)
+    }
+
+    /**
+     * Removes a DrawingView observer
+     */
+    fun removeObserver(observer: DrawingViewObserver) {
+        observers.remove(observer)
+    }
+
+    /**
+     * Tells the observers inside of DrawingView to redraw the canvas
+     */
+    fun notifyRedrawCanvas() {
+        Log.d("Notify DrawingView", "redrawCanvas()")
+        observers.forEach { it.redrawCanvas() }
+    }
 
     /**
      * Semaphore ensures that only one coroutine can proceed at a time.
@@ -180,19 +206,40 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     }
 
     /**
+     * Removes all paths from this drawing
+     */
+    fun blankDrawing(){
+        _drawing.value?.paths = ArrayList()
+        Log.d("Blanking Drawing",
+            "Paths in Drawing" + (_drawing.value?.id) + ": " + (_drawing.value?.paths?.count())
+        )
+        notifyRedrawCanvas()
+    }
+
+    /**
      * Sets color of all paths white
      */
-    fun blankPaths(){
-        _drawing.value?.let{ makePathsWhiteJIN(it) }
+    fun colorPaths(){
+        _drawing.value?.let{ _brush.value?.color?.let { it1 -> makePathsColorJIN(it, it1) } }
+        Log.d("Recoloring Drawing",
+            "Color in Drawing" + (_drawing.value?.id) + ": " + (_brush.value?.color)
+        )
+        notifyRedrawCanvas()
     }
     fun scalePaths(scalar: Float){
         _drawing.value?.let { multPathSizeJIN(it, scalar) }
+        Log.d("Scaling Drawing",
+            "Scalar in Drawing" + (_drawing.value?.id) + ": " + (scalar)
+        )
+        notifyRedrawCanvas()
     }
     fun invertColor(){
         _drawing.value?.let { invertPathColorsJIN(it) }
+        Log.d("Inverting Drawing", "Drawing" + (_drawing.value?.id))
+        notifyRedrawCanvas()
     }
 
-    external fun makePathsWhiteJIN(drawing: Drawing)
+    external fun makePathsColorJIN(drawing: Drawing, color: Int)
     external fun multPathSizeJIN(drawing: Drawing, scaleFactor: Float)
     external fun invertPathColorsJIN(drawing: Drawing)
 
@@ -204,4 +251,10 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _drawing.value = Drawing(ArrayList())
     }
 }
+
+interface DrawingViewObserver {
+    fun redrawCanvas()
+}
+
+
 

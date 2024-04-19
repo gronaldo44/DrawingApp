@@ -16,7 +16,7 @@ import java.io.File
  * @property paths The list of paths in the drawing.
  * @property id The identifier for the drawing.
  */
-data class Drawing(val paths: ArrayList<PathData>) {
+data class Drawing(var paths: ArrayList<PathData>) {
     var id: Long = -1   // tmp value
 }
 

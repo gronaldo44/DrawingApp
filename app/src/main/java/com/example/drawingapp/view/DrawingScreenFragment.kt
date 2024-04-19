@@ -224,9 +224,11 @@ fun ComposableModifierSelector(viewModel: DrawingViewModel) {
                     .testTag("modifierLayoutShowing"),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                ModifierButton("Blank", { viewModel.blankPaths() }, viewModel)
+                ModifierButton("Blank", { viewModel.blankDrawing() }, viewModel)
+                ModifierButton("Recolor", { viewModel.colorPaths() }, viewModel)
                 ModifierButton("Invert", { viewModel.invertColor() }, viewModel)
-                ModifierButton("Scale", { viewModel.scalePaths(2.0F) }, viewModel)
+                ModifierButton("Widen", { viewModel.scalePaths(2.0F) }, viewModel)
+                ModifierButton("Thin", { viewModel.scalePaths(0.5F) }, viewModel)
             }
         } else {
             // Use Row layout in portrait mode
@@ -236,9 +238,18 @@ fun ComposableModifierSelector(viewModel: DrawingViewModel) {
                     .testTag("modifierLayoutShowing"),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ModifierButton("Blank", { viewModel.blankPaths() }, viewModel)
+                ModifierButton("Blank", { viewModel.blankDrawing() }, viewModel)
+                ModifierButton("Recolor", { viewModel.colorPaths() }, viewModel)
                 ModifierButton("Invert", { viewModel.invertColor() }, viewModel)
-                ModifierButton("Scale", { viewModel.scalePaths(2.0F) }, viewModel)
+            }
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("modifierLayoutShowing"),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                ModifierButton("Widen", { viewModel.scalePaths(2.0F) }, viewModel)
+                ModifierButton("Thin", { viewModel.scalePaths(0.5F) }, viewModel)
             }
         }
     }
