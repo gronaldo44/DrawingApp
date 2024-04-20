@@ -12,11 +12,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentMainScreenBinding
@@ -27,6 +31,8 @@ import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +41,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -67,15 +75,9 @@ class MainScreenFragment : Fragment() {
         // Initialize your ViewModelFactory
         val activity = requireActivity() // Get the hosting activity
         val application = activity.application as DrawingApplication
-        viewModelFactory = DrawingViewModelFactory(application.repo)
+        viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
         // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
         viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
-
-        binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
-            viewModel.resetModel()
-            viewModel.isNewDrawing(true)
-            findNavController().navigate(R.id.AddDrawingClicked)
-        }
 
         var drawingsList: ArrayList<Drawing>
         // Call getAllDrawings using lifecycleScope to get the list of drawings
@@ -97,6 +99,14 @@ class MainScreenFragment : Fragment() {
                         ) {
                             findNavController().navigate(R.id.selectDrawing)
                         }
+                        Navbar(
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner,
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)}
+                        )
                     }
                     else -> {
                         ScrollableDrawingColumn(
@@ -106,6 +116,14 @@ class MainScreenFragment : Fragment() {
                         ) {
                             findNavController().navigate(R.id.selectDrawing)
                         }
+                        Navbar(
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner,
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)}
+                        )
                     }
                 }
             }
@@ -184,5 +202,26 @@ fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, dr
             )
         }
         Spacer(modifier = Modifier.height(10.dp).background(Color.Black))
+    }
+}
+
+@Composable
+fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+           addDrawingClicked: () -> Unit){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        // Row containing buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Add Drawing Button
+            Button(onClick = addDrawingClicked,
+                modifier = Modifier.testTag("Add Drawing")) {
+                Text("Add Drawing")
+            }
+        }
     }
 }
