@@ -225,3 +225,24 @@ fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
         }
     }
 }
+
+@Composable
+fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+           addDrawingClicked: () -> Unit){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        // Row containing buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Add Drawing Button
+            Button(onClick = addDrawingClicked,
+                modifier = Modifier.testTag("Add Drawing")) {
+                Text("Add Drawing")
+            }
+        }
+    }
+}
