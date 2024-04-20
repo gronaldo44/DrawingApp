@@ -86,32 +86,63 @@ class DrawingScreenFragment : Fragment() {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableDrawingLand(viewModel, viewLifecycleOwner, {
                         viewModel.viewModelScope.launch {
-                            viewModel.saveBoxIsVisible.value = true
+                            //onSaveClick
+                            if (viewModel.isNewDrawing) {
+                                viewModel.saveBoxIsVisible.value = true
+                            }
+                            else {
+                                viewModel.saveCurrentDrawing(requireContext())
+                                viewModel.saveBoxIsVisible.value = false
+                                findNavController().navigate(R.id.onSaved)
+                            }
                         }
-                    }
-                    ) { name: String, author: String ->
+                    }, { name: String, author: String ->
                         viewModel.viewModelScope.launch {
+                            //onSubmitClick
                             viewModel.setName(name)
                             viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
                             viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
+                        }
+                    }
+                    ) {
+                        viewModel.viewModelScope.launch {
+                            //onUploadClick
+                            //TODO: ADD FUNCTIONALITY TO UPLOAD IN FUTURE
+                            viewModel.saveBoxIsVisible.value = true
                         }
                     }
                 }
                 else -> {
                     ComposableDrawingPort(viewModel, viewLifecycleOwner, {
                         viewModel.viewModelScope.launch {
-                            viewModel.saveBoxIsVisible.value = true
+                            //onSaveClick
+                            if (viewModel.isNewDrawing) {
+                                viewModel.saveBoxIsVisible.value = true
+                            }
+                            else {
+                                viewModel.saveCurrentDrawing(requireContext())
+                                viewModel.saveBoxIsVisible.value = false
+                                findNavController().navigate(R.id.onSaved)
+                            }
                         }
-                    }
-                    ) { name: String, author: String ->
+                    },
+                     { name: String, author: String ->
                         viewModel.viewModelScope.launch {
+                            //onSubmitClick
                             viewModel.setName(name)
                             viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
                             viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
+                        }
+                    }
+                    ) {
+                        viewModel.viewModelScope.launch {
+                            //onUploadClick
+                            //TODO: ADD FUNCTIONALITY TO UPLOAD IN FUTURE
+                            viewModel.saveBoxIsVisible.value = true
                         }
                     }
 
@@ -374,6 +405,13 @@ fun ComposableSave(modifier: Modifier, onClick: () -> Unit){
     }
 }
 
+@Composable
+fun ComposableUpload(modifier: Modifier, onClick: () -> Unit) {
+    Button(onClick = onClick, modifier = modifier.testTag("Upload")) {
+        Text("Upload")
+    }
+}
+
 /**
  * Composable function responsible for rendering the drawing screen in portrait mode.
  * It provides UI elements for interacting with the drawing, such as color picker, shape selection,
@@ -381,7 +419,8 @@ fun ComposableSave(modifier: Modifier, onClick: () -> Unit){
  */
 @Composable
 fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-                          onSaveClick: ()->Unit, onSubmitClick: (String, String) ->Unit){
+                          onSaveClick: ()->Unit, onSubmitClick: (String, String) ->Unit,
+                          onUploadClick: () ->Unit){
     Column {
         Row(
             modifier = Modifier
@@ -408,9 +447,19 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                 ComposableSizeSelector(viewModel)
                 Spacer(modifier = Modifier.weight(1f))
                 NameAndAuthorInput(viewModel = viewModel, onSubmit = onSubmitClick)
-                ComposableSave(modifier = Modifier
-                    .testTag("saveButton")
-                    .fillMaxWidth(), onSaveClick)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    ComposableSave(modifier = Modifier
+                        .testTag("saveButton")
+                        .fillMaxWidth(0.5f), onSaveClick)
+                    ComposableUpload(modifier = Modifier
+                        .testTag("uploadButton")
+                        .fillMaxWidth(), onUploadClick)
+                }
             }
         }
     }
@@ -423,7 +472,8 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
  */
 @Composable
 fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-                          onSaveClick: ()->Unit,  onSubmitClick: (String, String) ->Unit){
+                          onSaveClick: ()->Unit,  onSubmitClick: (String, String) ->Unit,
+                          onUploadClick: () -> Unit){
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -447,6 +497,10 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                 .testTag("saveButton")
                 .padding(top = 5.dp, bottom = 5.dp)
                 .height(60.dp), onSaveClick)
+            ComposableUpload(modifier = Modifier
+                .testTag("uploadButton")
+                .padding(top = 5.dp, bottom = 5.dp)
+                .height(60.dp), onUploadClick)
         }
 
         Spacer(modifier = Modifier.weight(1f))

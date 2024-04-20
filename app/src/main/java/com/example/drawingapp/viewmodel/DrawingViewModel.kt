@@ -39,7 +39,7 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         get() = _drawing
 
     // This is so that the drawing does not get added if the user is only editing a drawing.
-    private var isNewDrawing: Boolean = false
+    var isNewDrawing: Boolean = false
 
     val saveCompletionChannel = Channel<Unit>()
     private var saveInProgress = false
