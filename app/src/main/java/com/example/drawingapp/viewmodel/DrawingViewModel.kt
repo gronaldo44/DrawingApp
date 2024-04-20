@@ -288,12 +288,12 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         }
     }
 
-    fun saveToFireBase(username: String, password: String){
-        TODO("Not yet implemented")
+    fun saveToFireBase(): Boolean? {
+        return _drawing.value?.let { authRepository.uploadToDb(it) }
     }
 
-    fun loadFromFireBase(){
-        TODO("Not yet implemented")
+    fun loadFromFireBase() :ArrayList<Drawing>{
+        return authRepository.loadAllDrawingsFromDb()
     }
 }
 

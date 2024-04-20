@@ -141,4 +141,18 @@ object DrawingSerializer {
         return drawing
     }
 
+    fun toDrawing(data: String, name: String, author: String): Drawing{
+        val serializedPathData = toPathDataList(data)
+        val paths: ArrayList<PathData> = ArrayList()
+        serializedPathData.forEach{ pathData ->
+            val p = stringToPath(pathData.path)
+            val c = pathData.color.toInt()
+            val s = pathData.size.toFloat()
+            paths.add(PathData(p, c, s))
+        }
+        val drawing = Drawing(paths, name, author)
+        // TODO set the id
+        return drawing
+    }
+
 }
