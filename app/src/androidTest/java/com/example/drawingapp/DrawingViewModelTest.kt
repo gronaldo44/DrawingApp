@@ -65,7 +65,7 @@ class DrawingViewModelTest {
 
     @Test
     fun testDBAdd() = runBlocking{
-        val testData = DbDrawing("Example.txt")
+        val testData = DbDrawing("Example.txt", "TestDrawing", "Ashton")
         dao.insertDrawing(testData)
 
         val allDrawings = dao.getAllDrawings()
@@ -75,7 +75,7 @@ class DrawingViewModelTest {
 
     @Test
     fun testIDExists() = runBlocking{
-        val testData = DbDrawing("Drawing0")
+        val testData = DbDrawing("Drawing0", "Drawing", "Joe Biden")
         dao.insertDrawing(testData)
 
         var exists = dao.exists(0)
@@ -90,7 +90,7 @@ class DrawingViewModelTest {
         var lastID = dao.getLastId()
         assertEquals(lastID, null)
 
-        val testData = DbDrawing("Drawing0")
+        val testData = DbDrawing("Drawing0", "FUNNY", "Rand")
         dao.insertDrawing(testData)
 
         lastID = dao.getLastId()
@@ -102,7 +102,7 @@ class DrawingViewModelTest {
         var count = dao.getDrawingCount()
         assertEquals(count, 0)
 
-        val testData = DbDrawing("Drawing0")
+        val testData = DbDrawing("Drawing0", "Count", "fun")
         dao.insertDrawing(testData)
 
         count = dao.getDrawingCount()

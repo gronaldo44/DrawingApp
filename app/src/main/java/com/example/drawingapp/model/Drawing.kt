@@ -16,7 +16,7 @@ import java.io.File
  * @property paths The list of paths in the drawing.
  * @property id The identifier for the drawing.
  */
-data class Drawing(var paths: ArrayList<PathData>) {
+data class Drawing(var paths: ArrayList<PathData>, var name: String, var author: String) {
     var id: Long = -1   // tmp value
 }
 
@@ -41,7 +41,7 @@ data class SerializedPathData(val path: String, val color: String, val size: Str
  */
 @Serializable
 @Entity(tableName = "Drawing")
-data class DbDrawing(val fileDir: String){
+data class DbDrawing(val fileDir: String, val name: String, val author: String){
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
 }
@@ -136,7 +136,7 @@ object DrawingSerializer {
             val s = pathData.size.toFloat()
             paths.add(PathData(p, c, s))
         }
-        val drawing = Drawing(paths)
+        val drawing = Drawing(paths, dbDrawing.name, dbDrawing.author)
         drawing.id = dbDrawing.id
         return drawing
     }

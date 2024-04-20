@@ -21,7 +21,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -79,21 +84,37 @@ class DrawingScreenFragment : Fragment() {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
-                    ComposableDrawingLand(viewModel, viewLifecycleOwner) {
+                    ComposableDrawingLand(viewModel, viewLifecycleOwner, {
                         viewModel.viewModelScope.launch {
+                            viewModel.saveBoxIsVisible.value = true
+                        }
+                    }
+                    ) { name: String, author: String ->
+                        viewModel.viewModelScope.launch {
+                            viewModel.setName(name)
+                            viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
+                            viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
                         }
                     }
                 }
-
                 else -> {
-                    ComposableDrawingPort(viewModel, viewLifecycleOwner) {
+                    ComposableDrawingPort(viewModel, viewLifecycleOwner, {
                         viewModel.viewModelScope.launch {
+                            viewModel.saveBoxIsVisible.value = true
+                        }
+                    }
+                    ) { name: String, author: String ->
+                        viewModel.viewModelScope.launch {
+                            viewModel.setName(name)
+                            viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
+                            viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
                         }
                     }
+
                 }
             }
         }
@@ -360,7 +381,7 @@ fun ComposableSave(modifier: Modifier, onClick: () -> Unit){
  */
 @Composable
 fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-                          onClick: ()->Unit){
+                          onSaveClick: ()->Unit, onSubmitClick: (String, String) ->Unit){
     Column {
         Row(
             modifier = Modifier
@@ -386,7 +407,10 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                 ComposableModifierSelector(viewModel)
                 ComposableSizeSelector(viewModel)
                 Spacer(modifier = Modifier.weight(1f))
-                ComposableSave(modifier = Modifier.testTag("saveButton").fillMaxWidth(), onClick)
+                NameAndAuthorInput(viewModel = viewModel, onSubmit = onSubmitClick)
+                ComposableSave(modifier = Modifier
+                    .testTag("saveButton")
+                    .fillMaxWidth(), onSaveClick)
             }
         }
     }
@@ -399,7 +423,7 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
  */
 @Composable
 fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-                          onClick: ()->Unit){
+                          onSaveClick: ()->Unit,  onSubmitClick: (String, String) ->Unit){
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -422,7 +446,7 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
             ComposableSave(modifier = Modifier
                 .testTag("saveButton")
                 .padding(top = 5.dp, bottom = 5.dp)
-                .height(60.dp), onClick)
+                .height(60.dp), onSaveClick)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -430,9 +454,47 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
         ComposableColorSelector(viewModel)
         ComposableShapeSelector(viewModel)
         ComposableModifierSelector(viewModel)
+        NameAndAuthorInput(viewModel = viewModel, onSubmit = onSubmitClick)
         ComposableSizeSelector(viewModel)
         Spacer(modifier = Modifier.weight(1f))
 
     }
 }
 
+@Composable
+fun NameAndAuthorInput(viewModel: DrawingViewModel, onSubmit: (String, String) -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf("") }
+    if (viewModel.saveBoxIsVisible.value) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextField(
+                value = author,
+                onValueChange = { author = it },
+                label = { Text("Author") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { onSubmit(name, author) },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Submit")
+            }
+        }
+    }
+}

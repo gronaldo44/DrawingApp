@@ -55,6 +55,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     val modifierLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
     val colorPickerVisible: MutableState<Boolean> = mutableStateOf(false)
     val sizeLayoutVisible: MutableState<Boolean> = mutableStateOf(false)
+    val saveBoxIsVisible: MutableState<Boolean> = mutableStateOf(false)
     val sliderPosition: MutableState<Float> = mutableFloatStateOf(0f)
 
     // Observers to tell the DrawingView to redraw
@@ -67,7 +68,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     // initialize default values
     init {
         _brush.value = Brush()
-        _drawing.value = Drawing(ArrayList())
+        _drawing.value = Drawing(ArrayList(), "NA", "NA")
         System.loadLibrary("drawingapp")
     }
 
@@ -139,7 +140,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
      */
     suspend fun saveCurrentDrawing(context: Context) {
         val curr = _drawing.value!!
-        var filename: String = "Drawing"
+        var filename: String = _drawing.value!!.name
 
         // Perform file writing operation in IO dispatcher
         withContext(Dispatchers.IO) {
@@ -152,7 +153,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
                 val isUpdate: Boolean = repository.isExists(curr.id)
                 if (!isUpdate){
                     filename += repository.getSize()
-                    repository.insertDrawing(filename)
+                    repository.insertDrawing(filename, _drawing.value!!.name, _drawing.value!!.author)
                     Log.d("Inserting Drawing", filename)
                 } else {
                     filename += (curr.id - 1)
@@ -255,7 +256,18 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
      */
     fun resetModel(){
         _brush.value = Brush()
-        _drawing.value = Drawing(ArrayList())
+        _drawing.value = Drawing(ArrayList(), "NA", "NA")
+    }
+
+    /**
+     * A function to set the name of a drawing.
+     */
+    fun setName(name: String) {
+        _drawing.value?.name = name
+    }
+
+    fun setAuthor(author: String) {
+        _drawing.value?.author = author
     }
 
     /**
