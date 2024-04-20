@@ -67,6 +67,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     private val _loginState = MutableLiveData<Boolean>()
     val loginState: LiveData<Boolean> get() = _loginState   // True if logged in
     val username = MutableLiveData<String>()    // email
+    val drawingLibrary = MutableLiveData<String>()  // email of library being downloaded from
 
     // initialize default values
     init {

@@ -87,57 +87,57 @@ class MainScreenFragment : Fragment() {
                 Toast.makeText(context, "Loading Drawings...", Toast.LENGTH_SHORT).show()
             }
             drawingsList = viewModel.getAllDrawings(requireContext())
-//            if (viewModel.username.value != null) {
-//                val downloadDrawings: Task<ArrayList<Drawing>> = viewModel.loadFromFirebase(
-//                    viewModel.username.value!!
-//                )
-//                downloadDrawings.addOnSuccessListener {drawings ->
-//                    drawingsList = drawings
-                    Log.d("Drawings", drawingsList.count().toString())
+            Log.d("Drawings", drawingsList.count().toString())
 
-                    binding.composeView.setContent {
-                        val configuration = LocalConfiguration.current
-                        when (configuration.orientation) {
-                            Configuration.ORIENTATION_LANDSCAPE -> {
-                                ScrollableDrawingColumn(
-                                    data = drawingsList,
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner
-                                ) {
-                                    findNavController().navigate(R.id.selectDrawing)
-                                }
-                                Navbar(
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
-                                    addDrawingClicked = {
-                                        viewModel.resetModel()
-                                        viewModel.isNewDrawing(true)
-                                        findNavController().navigate(R.id.AddDrawingClicked)}
-                                )
-                            }
-                            else -> {
-                                ScrollableDrawingColumn(
-                                    data = drawingsList,
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner
-                                ) {
-                                    findNavController().navigate(R.id.selectDrawing)
-                                }
-                                Navbar(
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
-                                    addDrawingClicked = {
-                                        viewModel.resetModel()
-                                        viewModel.isNewDrawing(true)
-                                        findNavController().navigate(R.id.AddDrawingClicked)}
-                                )
-                            }
+            binding.composeView.setContent {
+                val configuration = LocalConfiguration.current
+                when (configuration.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+                        ScrollableDrawingColumn(
+                            data = drawingsList,
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner
+                        ) {
+                            findNavController().navigate(R.id.selectDrawing)
                         }
+                        Navbar(
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner,
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)
+                            },
+                            downloadClicked = {
+                                findNavController().navigate(R.id.downloadDrawings)
+                            }
+
+                        )
                     }
-//                }.addOnFailureListener{e ->
-//                    Log.e("Downloading Drawings", "Failed to load downloaded drawings. ${e.stackTraceToString()}")
-//                }
-//            }
+
+                    else -> {
+                        ScrollableDrawingColumn(
+                            data = drawingsList,
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner
+                        ) {
+                            findNavController().navigate(R.id.selectDrawing)
+                        }
+                        Navbar(
+                            viewModel = viewModel,
+                            viewLifecycleOwner = viewLifecycleOwner,
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)
+                            },
+                            downloadClicked = {
+                                findNavController().navigate(R.id.downloadDrawings)
+                            }
+                        )
+                    }
+                }
+            }
         }
 
         return binding.root
@@ -154,22 +154,32 @@ class MainScreenFragment : Fragment() {
  * @param navigation The callback function to execute when the item is clicked.
  */
 @Composable
-fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: LifecycleOwner, viewModel: DrawingViewModel, navigation: () -> Unit) {
+fun ScrollableDrawingColumn(
+    data: ArrayList<Drawing>,
+    viewLifecycleOwner: LifecycleOwner,
+    viewModel: DrawingViewModel,
+    navigation: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFD3D3D3))
     )
     {
-        LazyColumn (
-            modifier = Modifier.wrapContentSize()
+        LazyColumn(
+            modifier = Modifier
+                .wrapContentSize()
                 .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(data) { item ->
-                ListItem(viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner, drawing = item) {
+                ListItem(
+                    viewModel = viewModel,
+                    viewLifecycleOwner = viewLifecycleOwner,
+                    drawing = item
+                ) {
                     viewModel.resetModel()
                     viewModel.setDrawing(item)
                     viewModel.isNewDrawing(false)
@@ -190,7 +200,12 @@ fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: Lifecy
  * @param onClick The callback function to execute when the item is clicked.
  */
 @Composable
-fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, drawing: Drawing, onClick: () -> Unit) {
+fun ListItem(
+    viewModel: DrawingViewModel,
+    viewLifecycleOwner: LifecycleOwner,
+    drawing: Drawing,
+    onClick: () -> Unit
+) {
     val drawingVisible = remember { mutableStateOf(true) }
     if (drawingVisible.value) {
         Box(
@@ -212,13 +227,18 @@ fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, dr
                 }
             )
         }
-        Spacer(modifier = Modifier.height(10.dp).background(Color.Black))
+        Spacer(modifier = Modifier
+            .height(10.dp)
+            .background(Color.Black))
     }
 }
 
 @Composable
-fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-           addDrawingClicked: () -> Unit){
+fun Navbar(
+    viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+    addDrawingClicked: () -> Unit,
+    downloadClicked: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Bottom
@@ -229,9 +249,18 @@ fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
             horizontalArrangement = Arrangement.Center
         ) {
             // Add Drawing Button
-            Button(onClick = addDrawingClicked,
-                modifier = Modifier.testTag("Add Drawing")) {
+            Button(
+                onClick = addDrawingClicked,
+                modifier = Modifier.testTag("Add Drawing")
+            ) {
                 Text("Add Drawing")
+            }
+            // Download Drawings Button
+            Button(
+                onClick = downloadClicked,
+                modifier = Modifier.testTag("Download Library")
+            ) {
+                Text("Download Library")
             }
         }
     }

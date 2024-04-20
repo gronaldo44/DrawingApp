@@ -25,6 +25,10 @@
         <action
             android:id="@+id/selectDrawing"
             app:destination="@id/drawingScreenFragment" />
+        <action
+            android:id="@+id/downloadDrawings"
+            app:destination="@id/cloudDrawingsFragment"
+            app:popUpTo="@id/mainScreenFragment" />
     </fragment>
     <fragment
         android:id="@+id/drawingScreenFragment"
@@ -33,6 +37,10 @@
         <action
             android:id="@+id/onSaved"
             app:destination="@id/mainScreenFragment" />
+        <action
+            android:id="@+id/onSavedUpload"
+            app:destination="@id/cloudDrawingsFragment"
+            app:popUpTo="@id/mainScreenFragment" />
     </fragment>
     <fragment
         android:id="@+id/firebaseSignInFragment"
@@ -42,6 +50,18 @@
         <action
             android:id="@+id/toMainScreen"
             app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cloudDrawingsFragment"
+        android:name="com.example.drawingapp.view.CloudDrawingsFragment"
+        android:label="fragment_cloud_drawings"
+        tools:layout="@layout/fragment_cloud_drawings" >
+        <action
+            android:id="@+id/onDrawingClicked"
+            app:destination="@id/drawingScreenFragment" />
+        <action
+            android:id="@+id/action_cloudDrawingsFragment_self2"
+            app:destination="@id/cloudDrawingsFragment" />
     </fragment>
 
 </navigation>
