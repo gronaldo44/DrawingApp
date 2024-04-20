@@ -139,6 +139,7 @@ fun ComposableFirebasePort(viewModel: DrawingViewModel, onClick: ()->Unit) {
 
             LaunchedEffect(loginState) {
                 if (loginState == true) {
+                    viewModel.username.value = email
                     onClick()
                 }
             }

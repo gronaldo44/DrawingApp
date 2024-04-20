@@ -3,6 +3,7 @@ package com.example.drawingapp.model
 import android.content.Context
 import android.graphics.Path
 import android.graphics.PathMeasure
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
@@ -151,7 +152,8 @@ object DrawingSerializer {
             paths.add(PathData(p, c, s))
         }
         val drawing = Drawing(paths, name, author)
-        // TODO set the id
+        Log.d("To Drawing", "Name is ${name}")
+        drawing.id = name.toLong()
         return drawing
     }
 

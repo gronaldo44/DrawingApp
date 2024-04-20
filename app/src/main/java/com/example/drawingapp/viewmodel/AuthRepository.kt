@@ -5,6 +5,8 @@ import android.util.Log
 import com.example.drawingapp.model.DbDrawing
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -39,8 +41,8 @@ class AuthRepository {
     }
 
     // Upload serialized data to Cloud Storage
-    fun uploadSerializedData(drawingId: String, serializedData: String) {
-        val storageReference = Firebase.storage.reference.child("drawings/$drawingId.json")
+    fun uploadSerializedData(username: String, drawingId: String, serializedData: String) {
+        val storageReference = Firebase.storage.reference.child("drawings/$username/$drawingId.json")
         val serializedDataBytes = serializedData.toByteArray()
 
         storageReference.putBytes(serializedDataBytes)
@@ -48,7 +50,7 @@ class AuthRepository {
                 Log.d("Uploading Drawing", "Successfully uploaded drawing to the cloud.")
                 // Now store reference to Cloud Storage in Firestore
                 val firestore = Firebase.firestore
-                val drawingRef = firestore.collection("drawings").document(drawingId)
+                val drawingRef = firestore.collection("$username.drawings").document("/$drawingId")
 
                 val data = hashMapOf(
                     "path" to storageReference.path // Store the path to the file in Cloud Storage
@@ -68,29 +70,54 @@ class AuthRepository {
             }
     }
 
+    // Retrieve all drawings from Firestore
+    fun retrieveDrawings(username: String): Task<ArrayList<Drawing>> {
+        val firestore = Firebase.firestore
+        val drawingsRef = firestore.collection("$username.drawings")
 
-    fun loadAllDrawingsFromDb(): ArrayList<Drawing> {
-        val convertedDrawings = ArrayList<Drawing>()
-        collection.get().addOnSuccessListener { result ->
-            Log.d("Read from Firebase", "Successfully got " + result.documents.count() + " documents.")
-            val docs = result.documents
-            for (doc in docs) {
-                // Convert each document to a DbDrawing
-                val data = doc.getString("drawing")
-                val name = doc.getString("name")
-                val author = doc.getString("author")
-                val id = doc.getLong("id")
+        // Define a Task to asynchronously retrieve drawings
+        val task = TaskCompletionSource<ArrayList<Drawing>>()
 
-                if (data != null && name != null && author != null && id != null) {
-                    val drawing = DrawingSerializer.toDrawing(data, name, author)
-                    Log.d("Converted FB Drawing", id.toString())
-                    convertedDrawings.add(drawing)
+        // Retrieve all documents from the user's drawings collection
+        drawingsRef.get()
+            .addOnSuccessListener { documents ->
+                Log.d("Downloading Documents", "Successfully downloaded all of $username's documents.")
+                val drawingsList = ArrayList<Drawing>()
+
+                // Iterate over each document and convert it to a Drawing object
+                for (document in documents) {
+                    val drawingId = document.id
+                    val path = document.getString("path")
+                    if (path != null) {
+                        val storageReference = Firebase.storage.getReference(path)
+                        storageReference.getBytes(Long.MAX_VALUE)
+                            .addOnSuccessListener { bytes ->
+                                // Deserialize bytes to reconstruct drawing
+                                val serializedData = String(bytes)
+                                val drawing = DrawingSerializer.toDrawing(
+                                    serializedData, path[path.length - 6].toString(), username)
+                                drawingsList.add(drawing)
+                                Log.d("Downloading Data", "Successfully downloaded ${drawing.name}.")
+
+                                // Check if all drawings have been retrieved
+                                if (drawingsList.size == documents.size()) {
+                                    task.setResult(drawingsList)
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Handle failure to retrieve serialized data from Cloud Storage
+                                Log.e("Downloading Data", "Failed to Download $username's serialized data. ${e.stackTraceToString()}")
+                                task.setException(e)
+                            }
+                    }
                 }
             }
+            .addOnFailureListener { e ->
+                Log.e("Downloading Documents", "Failed to Download $username's drawings. ${e.stackTraceToString()}")
+                task.setException(e)
+            }
 
-        }.addOnFailureListener{ e ->
-            Log.e("Load from Firebase", "Error downloading drawing: ${e.message}")
-        }
-        return convertedDrawings
+        return task.task // Return the Task<ArrayList<Drawing>>
     }
+
 }

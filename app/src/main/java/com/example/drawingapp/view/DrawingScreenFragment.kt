@@ -468,9 +468,15 @@ fun ComposableDrawingPort(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                     ComposableSave(modifier = Modifier
                         .testTag("saveButton")
                         .fillMaxWidth(0.5f), onSaveClick)
-                    ComposableUpload(modifier = Modifier
-                        .testTag("uploadButton")
-                        .fillMaxWidth(), onUploadClick)
+                    if (viewModel.loginState.value != null) {
+                        if (viewModel.loginState.value!!) {
+                            ComposableUpload(
+                                modifier = Modifier
+                                    .testTag("uploadButton")
+                                    .fillMaxWidth(), onUploadClick
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -510,10 +516,16 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                     .testTag("saveButton")
                     .padding(top = 5.dp, bottom = 5.dp)
                     .height(60.dp), onSaveClick)
-                ComposableUpload(modifier = Modifier
-                    .testTag("uploadButton")
-                    .padding(top = 5.dp, bottom = 5.dp)
-                    .height(60.dp), onUploadClick)
+                if (viewModel.loginState.value != null) {
+                    if (viewModel.loginState.value!!) {
+                        ComposableUpload(
+                            modifier = Modifier
+                                .testTag("uploadButton")
+                                .padding(top = 5.dp, bottom = 5.dp)
+                                .height(60.dp), onUploadClick
+                        )
+                    }
+                }
             }
         }
 

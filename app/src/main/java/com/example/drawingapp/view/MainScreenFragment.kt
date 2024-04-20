@@ -48,6 +48,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.model.Drawing
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,47 +87,57 @@ class MainScreenFragment : Fragment() {
                 Toast.makeText(context, "Loading Drawings...", Toast.LENGTH_SHORT).show()
             }
             drawingsList = viewModel.getAllDrawings(requireContext())
-            Log.d("Drawings", drawingsList.count().toString())
+//            if (viewModel.username.value != null) {
+//                val downloadDrawings: Task<ArrayList<Drawing>> = viewModel.loadFromFirebase(
+//                    viewModel.username.value!!
+//                )
+//                downloadDrawings.addOnSuccessListener {drawings ->
+//                    drawingsList = drawings
+                    Log.d("Drawings", drawingsList.count().toString())
 
-            binding.composeView.setContent {
-                val configuration = LocalConfiguration.current
-                when (configuration.orientation) {
-                    Configuration.ORIENTATION_LANDSCAPE -> {
-                        ScrollableDrawingColumn(
-                            data = drawingsList,
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner
-                        ) {
-                            findNavController().navigate(R.id.selectDrawing)
+                    binding.composeView.setContent {
+                        val configuration = LocalConfiguration.current
+                        when (configuration.orientation) {
+                            Configuration.ORIENTATION_LANDSCAPE -> {
+                                ScrollableDrawingColumn(
+                                    data = drawingsList,
+                                    viewModel = viewModel,
+                                    viewLifecycleOwner = viewLifecycleOwner
+                                ) {
+                                    findNavController().navigate(R.id.selectDrawing)
+                                }
+                                Navbar(
+                                    viewModel = viewModel,
+                                    viewLifecycleOwner = viewLifecycleOwner,
+                                    addDrawingClicked = {
+                                        viewModel.resetModel()
+                                        viewModel.isNewDrawing(true)
+                                        findNavController().navigate(R.id.AddDrawingClicked)}
+                                )
+                            }
+                            else -> {
+                                ScrollableDrawingColumn(
+                                    data = drawingsList,
+                                    viewModel = viewModel,
+                                    viewLifecycleOwner = viewLifecycleOwner
+                                ) {
+                                    findNavController().navigate(R.id.selectDrawing)
+                                }
+                                Navbar(
+                                    viewModel = viewModel,
+                                    viewLifecycleOwner = viewLifecycleOwner,
+                                    addDrawingClicked = {
+                                        viewModel.resetModel()
+                                        viewModel.isNewDrawing(true)
+                                        findNavController().navigate(R.id.AddDrawingClicked)}
+                                )
+                            }
                         }
-                        Navbar(
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner,
-                            addDrawingClicked = {
-                                viewModel.resetModel()
-                                viewModel.isNewDrawing(true)
-                                findNavController().navigate(R.id.AddDrawingClicked)}
-                        )
                     }
-                    else -> {
-                        ScrollableDrawingColumn(
-                            data = drawingsList,
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner
-                        ) {
-                            findNavController().navigate(R.id.selectDrawing)
-                        }
-                        Navbar(
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner,
-                            addDrawingClicked = {
-                                viewModel.resetModel()
-                                viewModel.isNewDrawing(true)
-                                findNavController().navigate(R.id.AddDrawingClicked)}
-                        )
-                    }
-                }
-            }
+//                }.addOnFailureListener{e ->
+//                    Log.e("Downloading Drawings", "Failed to load downloaded drawings. ${e.stackTraceToString()}")
+//                }
+//            }
         }
 
         return binding.root

@@ -16,6 +16,7 @@ import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -64,7 +65,8 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
 
     // Firebase user data
     private val _loginState = MutableLiveData<Boolean>()
-    val loginState: LiveData<Boolean> get() = _loginState
+    val loginState: LiveData<Boolean> get() = _loginState   // True if logged in
+    val username = MutableLiveData<String>()    // email
 
     // initialize default values
     init {
@@ -296,14 +298,16 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         val serializedPathData =
             _drawing.value?.let { DrawingSerializer.fromPathDataList(it.paths) }
         if (serializedPathData != null) {
-            authRepository.uploadSerializedData(_drawing.value?.id.toString(), serializedPathData)
+            username.value?.let {
+                authRepository.uploadSerializedData(it,_drawing.value?.id.toString(), serializedPathData)
+            }
         } else {
             Log.e("Uploading Drawing", "Failed: serializedPathData is null")
         }
     }
 
-    fun loadFromFireBase() :ArrayList<Drawing>{
-        return authRepository.loadAllDrawingsFromDb()
+    fun loadFromFirebase(user: String) : Task<ArrayList<Drawing>> {
+        return authRepository.retrieveDrawings(user)
     }
 }
 
