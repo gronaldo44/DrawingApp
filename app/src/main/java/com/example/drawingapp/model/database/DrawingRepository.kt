@@ -55,9 +55,9 @@ class DrawingRepository(private val scope: CoroutineScope,
      *
      * @param fileDir The file directory associated with the drawing.
      */
-    fun insertDrawing(fileDir: String) {
+    fun insertDrawing(fileDir: String, name: String, author: String) {
         scope.launch {
-            drawingDao.insertDrawing(DbDrawing(fileDir = fileDir))
+            drawingDao.insertDrawing(DbDrawing(fileDir = fileDir, name = name, author = author))
         }
     }
 

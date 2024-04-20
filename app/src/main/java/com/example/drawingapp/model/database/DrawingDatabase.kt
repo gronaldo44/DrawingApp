@@ -9,7 +9,7 @@ import com.example.drawingapp.model.DbDrawing
 /**
  * Room Database class for managing drawings data.
  */
-@Database(entities = [DbDrawing::class], version = 1)
+@Database(entities = [DbDrawing::class], version = 2)
 abstract class DrawingDatabase : RoomDatabase() {
 
     /**

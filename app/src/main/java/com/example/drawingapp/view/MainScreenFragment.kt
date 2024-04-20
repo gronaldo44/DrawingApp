@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +28,7 @@ import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -133,7 +135,8 @@ fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: Lifecy
     )
     {
         LazyColumn (
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .wrapContentSize()
                 .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -183,6 +186,25 @@ fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, dr
                 }
             )
         }
-        Spacer(modifier = Modifier.height(10.dp).background(Color.Black))
+        Spacer(modifier = Modifier
+            .height(5.dp)
+            .background(Color.Black))
+        Text(drawing.name)
+        Spacer(modifier = Modifier
+            .height(5.dp)
+            .background(Color.Black))
+        Text("Author: ".plus(drawing.author))
+        Spacer(modifier = Modifier
+            .height(5.dp)
+            .background(Color.Black))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp)
+                .background(Color.Black)
+        )
+        Spacer(modifier = Modifier
+            .height(10.dp)
+            .background(Color.Black))
     }
 }
