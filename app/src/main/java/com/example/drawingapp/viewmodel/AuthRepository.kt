@@ -7,6 +7,7 @@ import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -42,6 +43,19 @@ class AuthRepository {
 
     // Upload serialized data to Cloud Storage
     fun uploadSerializedData(username: String, drawingId: String, serializedData: String) {
+        // Ensure user is authenticated
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Log.e("Upload Drawing", "User is not authenticated.")
+            return
+        }
+        // Ensure Firebase.auth.uid matches FirebaseAuth.getInstance().currentUser!!.uid
+        val userId = currentUser.uid
+        if (userId != Firebase.auth.uid) {
+            Log.e("Upload Drawing", "Firebase.auth.uid does not match FirebaseAuth.getInstance().currentUser!!.uid")
+            return
+        }
+
         val storageReference = Firebase.storage.reference.child("drawings/$username/$drawingId.json")
         val serializedDataBytes = serializedData.toByteArray()
 
@@ -53,6 +67,7 @@ class AuthRepository {
                 val drawingRef = firestore.collection("$username.drawings").document("/$drawingId")
 
                 val data = hashMapOf(
+                    "author_uid" to userId,
                     "path" to storageReference.path // Store the path to the file in Cloud Storage
                     // Other metadata like drawing name, author, etc. can be added here
                 )
@@ -89,6 +104,7 @@ class AuthRepository {
                     val drawingId = document.id
                     val path = document.getString("path")
                     if (path != null) {
+                        Log.d("Downloading Document", "Path: $path")
                         val storageReference = Firebase.storage.getReference(path)
                         storageReference.getBytes(Long.MAX_VALUE)
                             .addOnSuccessListener { bytes ->
