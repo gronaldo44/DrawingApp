@@ -68,6 +68,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
 
     // initialize default values
     init {
+        _loginState.value = false
         _brush.value = Brush()
         _drawing.value = Drawing(ArrayList(), "NA", "NA")
         System.loadLibrary("drawingapp")
@@ -278,7 +279,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
      * @param password
      * @return Whether the login was successful
      */
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String){
         viewModelScope.launch {
             _loginState.value = authRepository.login(email, password)
             Log.d("Logging in", "Logged in ${_loginState.value}.")

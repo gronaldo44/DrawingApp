@@ -11,8 +11,8 @@
         android:label="fragment_splash_screen"
         tools:layout="@layout/fragment_splash_screen" >
         <action
-            android:id="@+id/closedSplashScreen"
-            app:destination="@id/mainScreenFragment" />
+            android:id="@+id/toFirebase"
+            app:destination="@id/firebaseSignInFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainScreenFragment"
@@ -32,6 +32,15 @@
         android:label="DrawingScreenFragment" >
         <action
             android:id="@+id/onSaved"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/firebaseSignInFragment"
+        android:name="com.example.drawingapp.view.FirebaseSignInFragment"
+        android:label="fragment_firebase_sign_in"
+        tools:layout="@layout/fragment_firebase_sign_in" >
+        <action
+            android:id="@+id/toMainScreen"
             app:destination="@id/mainScreenFragment" />
     </fragment>
 
