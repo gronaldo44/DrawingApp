@@ -109,8 +109,14 @@ class DrawingScreenFragment : Fragment() {
                     ) {
                         viewModel.viewModelScope.launch {
                             //onUploadClick
-                            //TODO: ADD FUNCTIONALITY TO UPLOAD IN FUTURE
-                            viewModel.saveBoxIsVisible.value = true
+                            if (viewModel.saveBoxIsVisible.value) {
+                                Log.d("Uploading to Firebase", "Initializing")
+                                viewModel.saveCurrentDrawing(requireContext())
+                                viewModel.saveToFireBase()
+                                viewModel.saveBoxIsVisible.value = false
+                            } else {
+                                viewModel.saveBoxIsVisible.value = true
+                            }
                         }
                     }
                 }
@@ -141,8 +147,14 @@ class DrawingScreenFragment : Fragment() {
                     ) {
                         viewModel.viewModelScope.launch {
                             //onUploadClick
-                            //TODO: ADD FUNCTIONALITY TO UPLOAD IN FUTURE
-                            viewModel.saveBoxIsVisible.value = true
+                            if (viewModel.saveBoxIsVisible.value) {
+                                Log.d("Uploading to Firebase", "Initializing")
+                                viewModel.saveCurrentDrawing(requireContext())
+                                viewModel.saveToFireBase()
+                                viewModel.saveBoxIsVisible.value = false
+                            } else {
+                                viewModel.saveBoxIsVisible.value = true
+                            }
                         }
                     }
 

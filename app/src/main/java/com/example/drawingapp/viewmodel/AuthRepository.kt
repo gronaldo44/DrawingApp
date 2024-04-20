@@ -8,6 +8,7 @@ import com.example.drawingapp.model.DrawingSerializer
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
@@ -21,7 +22,7 @@ class AuthRepository {
             Firebase.auth.currentUser != null
         } catch (e: Exception) {
             // Handle authentication failure (e.g., log error, return false)
-            Log.e("Failed login", e.stackTraceToString())
+            Log.e("Logging in", "Log in failed ${e.stackTraceToString()}")
             false
         }
     }
@@ -37,17 +38,36 @@ class AuthRepository {
         }
     }
 
-    fun uploadToDb(drawing: Drawing) : Boolean{
-        var success = true
-        val serializedPathData = DrawingSerializer.fromPathDataList(drawing.paths)
-        collection.add(serializedPathData).addOnSuccessListener {
-            Log.d("Upload to Firebase", "Drawing uploaded successfully")
-        }.addOnFailureListener{e ->
-            Log.e("Upload to Firebase", "Error uploading drawing: ${e.message}")
-            success = false
-        }
-        return success
+    // Upload serialized data to Cloud Storage
+    fun uploadSerializedData(drawingId: String, serializedData: String) {
+        val storageReference = Firebase.storage.reference.child("drawings/$drawingId.json")
+        val serializedDataBytes = serializedData.toByteArray()
+
+        storageReference.putBytes(serializedDataBytes)
+            .addOnSuccessListener { _ ->
+                Log.d("Uploading Drawing", "Successfully uploaded drawing to the cloud.")
+                // Now store reference to Cloud Storage in Firestore
+                val firestore = Firebase.firestore
+                val drawingRef = firestore.collection("drawings").document(drawingId)
+
+                val data = hashMapOf(
+                    "path" to storageReference.path // Store the path to the file in Cloud Storage
+                    // Other metadata like drawing name, author, etc. can be added here
+                )
+
+                drawingRef.set(data)
+                    .addOnSuccessListener {
+                        Log.d("Uploading Drawing Ref", "Reference stored successfully")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Uploading Drawing Ref", "Failed to store reference ${e.stackTraceToString()}")
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Uploading Drawing", "Failed to upload drawing to the cloud. ${e.stackTraceToString()}")
+            }
     }
+
 
     fun loadAllDrawingsFromDb(): ArrayList<Drawing> {
         val convertedDrawings = ArrayList<Drawing>()

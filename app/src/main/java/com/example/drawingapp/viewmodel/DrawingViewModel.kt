@@ -18,6 +18,7 @@ import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -138,7 +139,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
      * If the drawing is edited, it will be edited correctly without adding it to
      * the list. Only add to the list if the drawing didn't exist before.
      */
-    suspend fun saveCurrentDrawing(context: Context) {
+    suspend fun saveCurrentDrawing(context: Context){
         val curr = _drawing.value!!
         var filename: String = _drawing.value!!.name
 
@@ -152,6 +153,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
             try {
                 val isUpdate: Boolean = repository.isExists(curr.id)
                 if (!isUpdate){
+                    _drawing.value!!.id = repository.getSize().toLong()
                     filename += repository.getSize()
                     repository.insertDrawing(filename, _drawing.value!!.name, _drawing.value!!.author)
                     Log.d("Inserting Drawing", filename)
@@ -279,6 +281,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _loginState.value = authRepository.login(email, password)
+            Log.d("Logging in", "Logged in ${_loginState.value}.")
         }
     }
 
@@ -288,8 +291,14 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         }
     }
 
-    fun saveToFireBase(): Boolean? {
-        return _drawing.value?.let { authRepository.uploadToDb(it) }
+    suspend fun saveToFireBase() {
+        val serializedPathData =
+            _drawing.value?.let { DrawingSerializer.fromPathDataList(it.paths) }
+        if (serializedPathData != null) {
+            authRepository.uploadSerializedData(_drawing.value?.id.toString(), serializedPathData)
+        } else {
+            Log.e("Uploading Drawing", "Failed: serializedPathData is null")
+        }
     }
 
     fun loadFromFireBase() :ArrayList<Drawing>{
