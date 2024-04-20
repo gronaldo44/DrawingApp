@@ -50,12 +50,12 @@ class SplashScreenFragment : Fragment() {
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableSplashLand{
-                        findNavController().navigate(R.id.closedSplashScreen)
+                        findNavController().navigate(R.id.toFirebase)
                     }
                 }
                 else -> {
                     ComposableSplashPort{
-                        findNavController().navigate(R.id.closedSplashScreen)
+                        findNavController().navigate(R.id.toFirebase)
                     }
                 }
             }
