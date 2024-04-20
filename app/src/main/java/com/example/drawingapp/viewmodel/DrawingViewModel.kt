@@ -10,15 +10,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.drawingapp.model.database.DrawingRepository
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -27,7 +31,7 @@ import java.io.File
  * ViewModel for managing drawing properties and dialogs in the Drawing Screen.
  * Responsible for managing brush color, brush size, and showing/hiding dialogs.
  */
-class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() {
+class DrawingViewModel(private val repository: DrawingRepository, private val authRepository: AuthRepository) : ViewModel() {
     // LiveData for brush
     private var _brush = MutableLiveData<Brush>()
     val brush: LiveData<Brush>
@@ -56,6 +60,9 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     // Observers to tell the DrawingView to redraw
     private val observers = mutableListOf<DrawingViewObserver>()
 
+    // Firebase user data
+    private val _loginState = MutableLiveData<Boolean>()
+    val loginState: LiveData<Boolean> get() = _loginState
 
     // initialize default values
     init {
@@ -250,11 +257,38 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         _brush.value = Brush()
         _drawing.value = Drawing(ArrayList())
     }
+
+    /**
+     * Attempts to login to Firebase with the argued email and password
+     * @param email
+     * @param password
+     * @return Whether the login was successful
+     */
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _loginState.value = authRepository.login(email, password)
+        }
+    }
+
+    fun createUser(email: String, password: String){
+        viewModelScope.launch {
+            _loginState.value = authRepository.createUser(email, password)
+        }
+    }
+
+    fun saveToFireBase(username: String, password: String){
+        TODO("Not yet implemented")
+    }
+
+    fun loadFromFireBase(){
+        TODO("Not yet implemented")
+    }
 }
 
 interface DrawingViewObserver {
     fun redrawCanvas()
 }
+
 
 
 

@@ -20,6 +20,9 @@ class DrawingApplication : Application() {
     // Lazily initialize the repository instance using DrawingRepository
     val repo by lazy { DrawingRepository(scope, db.drawingDao()) }
 
+    // Lazily initialize the authRepository instance using AuthRepository
+    val authRepo by lazy {AuthRepository()}
+
     /**
      * Called when the application is starting, before any other application objects have been created.
      * You can override this method to initialize application-wide resources.

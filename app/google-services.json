@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644465561695",
+    "project_id": "cs4530-spring2024",
+    "storage_bucket": "cs4530-spring2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644465561695:android:18064ffa13161b92430bea",
+        "android_client_info": {
+          "package_name": "com.example.drawingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC32xjEIzywtsg1eHxW5IxVv1Mw7dR42-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

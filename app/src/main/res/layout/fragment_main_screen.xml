@@ -24,11 +24,6 @@
             android:layout_height="620dp"
             android:background="#D3D3D3"/>
 
-        <Button
-            android:id="@+id/addDrawingButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Drawing" />
     </LinearLayout>
 
 </FrameLayout>

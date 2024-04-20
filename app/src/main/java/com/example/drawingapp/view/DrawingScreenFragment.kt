@@ -68,7 +68,7 @@ class DrawingScreenFragment : Fragment() {
         // Initialize your ViewModelFactory
         val activity = requireActivity() // Get the hosting activity
         val application = activity.application as DrawingApplication
-        viewModelFactory = DrawingViewModelFactory(application.repo)
+        viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
         // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
         viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
         // Sets the lifecycle

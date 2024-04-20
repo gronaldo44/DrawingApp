@@ -6,6 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
     //for room
     id("com.google.devtools.ksp")
+
+    // For Cloud Firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -151,4 +154,14 @@ dependencies {
 
     // JUnit4
     testImplementation("junit:junit:4.13.2")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    // Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-common-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
 }

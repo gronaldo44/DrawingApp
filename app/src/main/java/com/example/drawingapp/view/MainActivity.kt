@@ -25,7 +25,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModel: DrawingViewModel by viewModels{
-            DrawingViewModelFactory((application as DrawingApplication).repo)}
+            DrawingViewModelFactory((application as DrawingApplication).repo,
+                                    (application as DrawingApplication).authRepo)}
         setContentView(R.layout.activity_main)
     }
 }

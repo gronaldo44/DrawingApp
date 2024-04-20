@@ -10,7 +10,8 @@ import com.example.drawingapp.model.database.DrawingRepository
  *
  * @param repository The repository to be used by the ViewModel.
  */
-class DrawingViewModelFactory(private val repository: DrawingRepository) : ViewModelProvider.Factory {
+class DrawingViewModelFactory(private val repository: DrawingRepository,
+                              private val authRepository: AuthRepository) : ViewModelProvider.Factory {
     /**
      * Creates a new instance of the specified [ViewModel].
      *
@@ -21,7 +22,7 @@ class DrawingViewModelFactory(private val repository: DrawingRepository) : ViewM
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DrawingViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DrawingViewModel(repository) as T
+            return DrawingViewModel(repository, authRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

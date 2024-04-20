@@ -1,5 +1,6 @@
 package com.example.drawingapp.view
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -12,11 +13,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentMainScreenBinding
@@ -27,14 +32,20 @@ import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -49,7 +60,7 @@ import kotlinx.coroutines.withContext
  */
 class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
-    private lateinit var viewModel: DrawingViewModel
+    lateinit var viewModel: DrawingViewModel
     private lateinit var viewModelFactory: DrawingViewModelFactory
 
     /**
@@ -67,15 +78,9 @@ class MainScreenFragment : Fragment() {
         // Initialize your ViewModelFactory
         val activity = requireActivity() // Get the hosting activity
         val application = activity.application as DrawingApplication
-        viewModelFactory = DrawingViewModelFactory(application.repo)
+        viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
         // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
         viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
-
-        binding.addDrawingButton.setOnClickListener {// GOTO drawing screen
-            viewModel.resetModel()
-            viewModel.isNewDrawing(true)
-            findNavController().navigate(R.id.AddDrawingClicked)
-        }
 
         var drawingsList: ArrayList<Drawing>
         // Call getAllDrawings using lifecycleScope to get the list of drawings
@@ -90,22 +95,27 @@ class MainScreenFragment : Fragment() {
                 val configuration = LocalConfiguration.current
                 when (configuration.orientation) {
                     Configuration.ORIENTATION_LANDSCAPE -> {
-                        ScrollableDrawingColumn(
-                            data = drawingsList,
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner
-                        ) {
-                            findNavController().navigate(R.id.selectDrawing)
-                        }
+                        MainScreen(
+                            viewModel = viewModel, viewLifecycleOwner = viewLifecycleOwner,
+                            navigation = {findNavController().navigate(R.id.selectDrawing)},
+                            requireContext(),
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)},
+                            )
                     }
                     else -> {
-                        ScrollableDrawingColumn(
-                            data = drawingsList,
+                        MainScreen(
                             viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner
-                        ) {
-                            findNavController().navigate(R.id.selectDrawing)
-                        }
+                            viewLifecycleOwner = viewLifecycleOwner,
+                            navigation = {findNavController().navigate(R.id.selectDrawing)},
+                            requireContext(),
+                            addDrawingClicked = {
+                                viewModel.resetModel()
+                                viewModel.isNewDrawing(true)
+                                findNavController().navigate(R.id.AddDrawingClicked)},
+                        )
                     }
                 }
             }
@@ -114,6 +124,65 @@ class MainScreenFragment : Fragment() {
         return binding.root
     }
 }
+
+
+@Composable
+fun MainScreen(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+               navigation: () -> Unit,
+               context: Context,
+               addDrawingClicked: () -> Unit) {
+    var loadFrom by remember { mutableStateOf("Cloud") }
+    val email = "fake@email.com"
+    val password = "password"
+    var drawingsList = ArrayList<Drawing>()
+
+    LaunchedEffect(loadFrom) {
+        if (loadFrom == "Local") {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Loading Drawings from Local.", Toast.LENGTH_SHORT).show()
+            }
+            drawingsList = viewModel.getAllDrawings(context)
+            Log.d("Drawings", drawingsList.count().toString())
+
+            // If user is not logged in, have user type in email & password then log them in
+            viewModel.login(email, password)
+            if (viewModel.loginState.value != true) {
+                viewModel.createUser(email, password)
+            }
+        } else {
+            // TODO: load from cloud
+        }
+    }
+
+    // Function to handle cloud button click
+    val onCloudButtonClicked: () -> Unit = {
+        Log.d("Cloud Button", "Cloud button was clicked")
+        loadFrom = if (loadFrom == "Cloud") "Local" else "Cloud"
+
+        // TODO("If user is not logged in, have user type in email & password then log them in")
+        viewModel.login(email, password)
+        if (viewModel.loginState.value != true) {
+            viewModel.createUser(email, password)
+        }
+
+        // TODO("change drawingsList, reload ScrollableDrawingColumn")
+    }
+
+    Column {
+        // Recycler View
+        ScrollableDrawingColumn(
+            data = drawingsList,
+            viewModel = viewModel,
+            viewLifecycleOwner = viewLifecycleOwner
+        ) {
+            navigation
+        }
+        // Navbar composable
+        Navbar(viewModel, viewLifecycleOwner, addDrawingClicked, onCloudButtonClicked, loadFrom)
+    }
+}
+
+
 
 /**
  * A composable function to display a single drawing item in the list.
@@ -133,7 +202,8 @@ fun ScrollableDrawingColumn(data: ArrayList<Drawing>, viewLifecycleOwner: Lifecy
     )
     {
         LazyColumn (
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .wrapContentSize()
                 .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -183,6 +253,35 @@ fun ListItem(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner, dr
                 }
             )
         }
-        Spacer(modifier = Modifier.height(10.dp).background(Color.Black))
+        Spacer(modifier = Modifier
+            .height(10.dp)
+            .background(Color.Black))
+    }
+}
+
+@Composable
+fun Navbar(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
+           addDrawingClicked: () -> Unit, onCloudButtonClicked: () -> Unit, loadFrom: String){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        // Row containing buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Add Drawing Button
+            Button(onClick = addDrawingClicked,
+                modifier = Modifier.testTag("Add Drawing")) {
+                Text("Add Drawing")
+            }
+            Spacer(modifier = Modifier.width(30.dp))
+            // Cloud Button
+            Button(onClick = onCloudButtonClicked,
+                modifier = Modifier.testTag("cloud")) {
+                Text(loadFrom)
+            }
+        }
     }
 }
