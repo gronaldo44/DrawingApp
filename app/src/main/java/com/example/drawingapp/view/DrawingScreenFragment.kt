@@ -493,14 +493,16 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
                 modifier = Modifier
                     .padding(top = 5.dp, bottom = 5.dp)
                     .height(60.dp), viewModel)
-            ComposableSave(modifier = Modifier
-                .testTag("saveButton")
-                .padding(top = 5.dp, bottom = 5.dp)
-                .height(60.dp), onSaveClick)
-            ComposableUpload(modifier = Modifier
-                .testTag("uploadButton")
-                .padding(top = 5.dp, bottom = 5.dp)
-                .height(60.dp), onUploadClick)
+            Row(modifier = Modifier) {
+                ComposableSave(modifier = Modifier
+                    .testTag("saveButton")
+                    .padding(top = 5.dp, bottom = 5.dp)
+                    .height(60.dp), onSaveClick)
+                ComposableUpload(modifier = Modifier
+                    .testTag("uploadButton")
+                    .padding(top = 5.dp, bottom = 5.dp)
+                    .height(60.dp), onUploadClick)
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
