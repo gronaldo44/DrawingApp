@@ -21,7 +21,14 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withTagValue
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.common.base.CharMatcher.`is`
+import com.google.firebase.auth.FirebaseAuth
+import org.junit.Before
 import org.junit.Rule
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mock
+import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
 class UIUnitTests {
@@ -98,7 +105,7 @@ class UIUnitTests {
     @Test
     fun navigateToDrawingScreen_OnButtonPress() {
         launchFragmentInContainer<MainScreenFragment>()
-        onView(withId(R.id.addDrawingButton)).perform(click())
+        onView(withText("Add Drawing")).perform(click())
         onView(withId(R.id.drawingScreenFragment)).check(matches(isDisplayed()))
     }
 
@@ -116,5 +123,41 @@ class UIUnitTests {
 
         onView(withText("Save")).perform(click())
         onView(withId(R.id.mainScreenFragment)).check(matches(isDisplayed()))
+    }
+
+    @Mock
+    private lateinit var mockAuth: FirebaseAuth
+
+    @Before
+    fun setUp() {
+        MockitoAnnotations.initMocks(this)
+        // Set up necessary mock behavior for the fragment
+    }
+
+    @Test
+    fun signInButton_click_signsInUser() {
+        val scenario = launchFragmentInContainer<FirebaseSignInFragment>()
+        scenario.onFragment { fragment ->
+            onView(withText("Log In")).perform(click())
+            verify(mockAuth).signInWithEmailAndPassword(anyString(), anyString())
+        }
+    }
+
+    @Test
+    fun signInButton_click_createInUser() {
+        val scenario = launchFragmentInContainer<FirebaseSignInFragment>()
+        scenario.onFragment { fragment ->
+            onView(withText("Sign Up")).perform(click())
+            verify(mockAuth).createUserWithEmailAndPassword(anyString(), anyString())
+        }
+    }
+
+    @Test
+    fun signInButton_click_local() {
+        val scenario = launchFragmentInContainer<FirebaseSignInFragment>()
+        scenario.onFragment { fragment ->
+            onView(withText("Continue With Local")).perform(click())
+            onView(withId(R.id.mainScreenFragment)).check(matches(isDisplayed()))
+        }
     }
 }

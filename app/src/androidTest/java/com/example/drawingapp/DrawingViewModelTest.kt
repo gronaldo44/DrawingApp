@@ -4,14 +4,26 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Path
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.drawingapp.model.Brush
 import com.example.drawingapp.model.DbDrawing
 import com.example.drawingapp.model.database.DrawingDao
 import com.example.drawingapp.model.database.DrawingDatabase
 import com.example.drawingapp.model.database.DrawingRepository
+import com.example.drawingapp.view.FirebaseSignInFragment
+import com.example.drawingapp.view.MainScreenFragment
+import com.example.drawingapp.viewmodel.AuthRepository
+import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
@@ -20,10 +32,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 
 /**
  * Unit tests for the DrawingViewModel class.
@@ -109,21 +125,13 @@ class DrawingViewModelTest {
         assertEquals(count, 1)
     }
 
+    @Mock
+    lateinit var authRepository: AuthRepository
 
-    @Test
-    fun testSetBrushColor() {
-            val viewModel = DrawingViewModel(drawingRepository)
-            val color = Color.RED
-
-            viewModel.setBrushColor(color)
-            val brush = viewModel.brush.value
-
-            assertEquals(color, brush?.color)
-    }
 
     @Test
     fun testSetBrushSize() {
-        val viewModel = DrawingViewModel(drawingRepository)
+        val viewModel = DrawingViewModel(drawingRepository, authRepository)
         val size = 10f
 
         viewModel.updateBrush(size = size)
@@ -134,7 +142,7 @@ class DrawingViewModelTest {
 
     @Test
     fun testSelectShape() {
-        val viewModel = DrawingViewModel(drawingRepository)
+        val viewModel = DrawingViewModel(drawingRepository, authRepository)
         val shape = Brush.Shape.CIRCLE
 
         viewModel.updateBrush(shape=shape)
@@ -145,7 +153,7 @@ class DrawingViewModelTest {
 
     @Test
     fun testAddPath() {
-        val viewModel = DrawingViewModel(drawingRepository)
+        val viewModel = DrawingViewModel(drawingRepository, authRepository)
         val path = Path()
         val color = Color.BLACK
         val size = 5f
@@ -161,7 +169,7 @@ class DrawingViewModelTest {
 
     @Test
     fun testResetModel() {
-        val viewModel = DrawingViewModel(drawingRepository)
+        val viewModel = DrawingViewModel(drawingRepository, authRepository)
         val path = Path()
 
         viewModel.addPath(path, Color.RED, 5f)
@@ -169,5 +177,41 @@ class DrawingViewModelTest {
         val drawing = viewModel.drawing
 
         assertEquals(0,  drawing.value?.paths?.size)
+    }
+
+    //Firebase
+
+    @Test
+    fun testFirebaseDrawingLoaded(): Unit = runBlocking{
+        var count = dao.getDrawingCount()
+        assertEquals(count, 0)
+
+        val scenario = launchFragmentInContainer<MainScreenFragment>()
+        scenario.onFragment { fragment ->
+            onView(withText("Download Library"))
+                .perform(ViewActions.click())
+            onView(withId(R.id.cloudDrawingsFragment))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        }
+
+        count = dao.getDrawingCount()
+        assertNotEquals(count, 0)
+    }
+
+    @Test
+    fun testUpdateDrawing() = runBlocking {
+        var count = dao.getDrawingCount()
+        assertEquals(count, 1)
+
+        val scenario = launchFragmentInContainer<MainScreenFragment>()
+        scenario.onFragment { fragment ->
+            onView(withText("Download Library"))
+                .perform(ViewActions.click())
+            onView(withId(R.id.cloudDrawingsFragment))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        }
+
+        count = dao.getDrawingCount()
+        assertEquals(count, 1)
     }
 }

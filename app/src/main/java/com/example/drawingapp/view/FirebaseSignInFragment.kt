@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -125,9 +126,10 @@ fun ComposableFirebasePort(viewModel: DrawingViewModel, onClick: ()->Unit) {
 
         Row {
             Button(onClick = {
-                viewModel.login(email, password)
-            }) {
+                viewModel.login(email, password) },
+                modifier = Modifier.testTag("SUBMITUSER")) {
                 Text("Log In")
+
             }
 
             Button(onClick = {
