@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.databinding.FragmentMainScreenBinding
@@ -42,13 +41,11 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingapp.model.Drawing
-import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,18 +98,15 @@ class MainScreenFragment : Fragment() {
                             findNavController().navigate(R.id.selectDrawing)
                         }
                         Navbar(
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner,
                             addDrawingClicked = {
                                 viewModel.resetModel()
                                 viewModel.isNewDrawing(true)
                                 findNavController().navigate(R.id.AddDrawingClicked)
-                            },
-                            downloadClicked = {
-                                findNavController().navigate(R.id.downloadDrawings)
                             }
 
-                        )
+                        ) {
+                            findNavController().navigate(R.id.downloadDrawings)
+                        }
                     }
 
                     else -> {
@@ -124,17 +118,14 @@ class MainScreenFragment : Fragment() {
                             findNavController().navigate(R.id.selectDrawing)
                         }
                         Navbar(
-                            viewModel = viewModel,
-                            viewLifecycleOwner = viewLifecycleOwner,
                             addDrawingClicked = {
                                 viewModel.resetModel()
                                 viewModel.isNewDrawing(true)
                                 findNavController().navigate(R.id.AddDrawingClicked)
-                            },
-                            downloadClicked = {
-                                findNavController().navigate(R.id.downloadDrawings)
                             }
-                        )
+                        ) {
+                            findNavController().navigate(R.id.downloadDrawings)
+                        }
                     }
                 }
             }
@@ -239,17 +230,11 @@ fun ListItem(
  * This function represents a navigation bar typically placed at the bottom of the screen.
  * It provides buttons for adding a new drawing and downloading the library.
  *
- * @param viewModel The [DrawingViewModel] instance used for managing drawing-related data.
- * @param viewLifecycleOwner The [LifecycleOwner] associated with the view's lifecycle.
  * @param addDrawingClicked Callback function triggered when the "Add Drawing" button is clicked.
  * @param downloadClicked Callback function triggered when the "Download Library" button is clicked.
  */
 @Composable
-fun Navbar(
-    viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-    addDrawingClicked: () -> Unit,
-    downloadClicked: () -> Unit
-) {
+fun Navbar(addDrawingClicked: () -> Unit, downloadClicked: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Bottom

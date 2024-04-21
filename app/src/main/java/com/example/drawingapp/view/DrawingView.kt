@@ -198,12 +198,12 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
      */
     fun setViewModel(viewModel: DrawingViewModel, lifecycleOwner: LifecycleOwner) {
         this.viewModel = viewModel
-        viewModel.brush.observe(lifecycleOwner, Observer { brush ->
+        viewModel.brush.observe(lifecycleOwner) { brush ->
             // Update paint properties when brush changes
             drawPaint.color = brush.color
             drawPaint.strokeWidth = brush.size
             previewPaint.strokeWidth = brush.size
-        })
+        }
         viewModel.addObserver(this)
     }
 

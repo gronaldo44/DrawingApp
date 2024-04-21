@@ -381,7 +381,6 @@ fun ComposableSizeSelector(viewModel: DrawingViewModel){
  * Size, Color, Shapes, and Save. Responsible for showing correct views at correct time
  * @param modifier The Modifier for UI customization
  * @param viewModel The ViewModel to communicate with
- * @param onClick Click listener for the save button
  */
 @Composable
 fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel){

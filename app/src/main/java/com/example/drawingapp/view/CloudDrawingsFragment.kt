@@ -73,10 +73,7 @@ class CloudDrawingsFragment : Fragment() {
                             downloadClicked = {
                                 createDrawingsList(
                                     viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
-                                    drawingClicked = {
-                                        findNavController().navigate(R.id.selectDrawing)
-                                    }
+                                    viewLifecycleOwner = viewLifecycleOwner
                                 )
                             },
                             viewModel = viewModel
@@ -87,10 +84,7 @@ class CloudDrawingsFragment : Fragment() {
                             downloadClicked = {
                                 createDrawingsList(
                                     viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
-                                    drawingClicked = {
-                                        findNavController().navigate(R.id.selectDrawing)
-                                    }
+                                    viewLifecycleOwner = viewLifecycleOwner
                                 )
                             },
                             viewModel = viewModel
@@ -107,10 +101,8 @@ class CloudDrawingsFragment : Fragment() {
      * Creates a list of drawings.
      * @param viewModel ViewModel instance for managing drawing data
      * @param viewLifecycleOwner LifecycleOwner instance for observing LiveData
-     * @param drawingClicked Callback for handling drawing item clicks
      */
-    private fun createDrawingsList(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
-                                   drawingClicked: () -> Unit){
+    private fun createDrawingsList(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner){
         viewLifecycleOwner.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "Loading Drawings...", Toast.LENGTH_SHORT).show()
@@ -134,16 +126,13 @@ class CloudDrawingsFragment : Fragment() {
                                     findNavController().navigate(R.id.onDrawingClicked)
                                 }
                                 Navbar(
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
                                     addDrawingClicked = {
                                         viewModel.resetModel()
                                         viewModel.isNewDrawing(true)
-                                        findNavController().navigate(R.id.onDrawingClicked)},
-                                    downloadClicked = {
-                                        findNavController().navigate(R.id.cloudDrawingsFragment)
-                                    }
-                                )
+                                        findNavController().navigate(R.id.onDrawingClicked)}
+                                ) {
+                                    findNavController().navigate(R.id.cloudDrawingsFragment)
+                                }
                             }
                             else -> {
                                 ScrollableDrawingColumn(
@@ -154,16 +143,13 @@ class CloudDrawingsFragment : Fragment() {
                                     findNavController().navigate(R.id.onDrawingClicked)
                                 }
                                 Navbar(
-                                    viewModel = viewModel,
-                                    viewLifecycleOwner = viewLifecycleOwner,
                                     addDrawingClicked = {
                                         viewModel.resetModel()
                                         viewModel.isNewDrawing(true)
-                                        findNavController().navigate(R.id.onDrawingClicked)},
-                                    downloadClicked = {
-                                        findNavController().navigate(R.id.cloudDrawingsFragment)
-                                    }
-                                )
+                                        findNavController().navigate(R.id.onDrawingClicked)}
+                                ) {
+                                    findNavController().navigate(R.id.cloudDrawingsFragment)
+                                }
                             }
                         }
                     }

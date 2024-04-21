@@ -311,7 +311,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     /**
      * Suspended function to save the drawing data to Firebase.
      */
-    suspend fun saveToFireBase() {
+    fun saveToFireBase() {
         val serializedPathData =
             _drawing.value?.let { DrawingSerializer.fromPathDataList(it.paths) }
         if (serializedPathData != null) {

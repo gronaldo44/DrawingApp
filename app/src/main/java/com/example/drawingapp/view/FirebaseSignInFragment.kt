@@ -7,8 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gms.tasks.Task
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,15 +27,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.drawingapp.R
@@ -45,8 +39,6 @@ import com.example.drawingapp.databinding.FragmentSplashScreenBinding
 import com.example.drawingapp.viewmodel.DrawingApplication
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.drawingapp.viewmodel.DrawingViewModelFactory
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 
 /**
  * Fragment responsible for displaying the Firebase sign-in screen.
@@ -71,9 +63,9 @@ class FirebaseSignInFragment : Fragment() {
         // Initialize your ViewModelFactory
         val activity = requireActivity() // Get the hosting activity
         val application = activity.application as DrawingApplication
-        var viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
+        val viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
         // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
-        var viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
+        val viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
 
         // Set up the composables based on the device's orientation
         binding.composeSplashScreen.setContent {

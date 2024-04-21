@@ -119,7 +119,7 @@ class AuthRepository {
 
                 // Iterate over each document and convert it to a Drawing object
                 for (document in documents) {
-                    val drawingId = document.id
+                    document.id
                     val path = document.getString("path")
                     if (path != null) {
                         Log.d("Downloading Document", "Path: $path")
