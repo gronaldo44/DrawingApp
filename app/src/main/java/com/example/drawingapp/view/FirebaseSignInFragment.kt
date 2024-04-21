@@ -73,7 +73,6 @@ class FirebaseSignInFragment : Fragment() {
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableFirebasePort(viewModel){
-
                         findNavController().navigate(R.id.toMainScreen)
                     }
                 }
@@ -153,34 +152,6 @@ fun ComposableFirebasePort(viewModel: DrawingViewModel, onClick: ()->Unit) {
             onClick()
         }) {
             Text(text = "Continue With Local")
-        }
-    }
-}
-
-/**
- * Composable function for Firebase landscape view.
- *
- * @param onClick Callback function invoked upon continue button click.
- */
-@Composable
-fun ComposableFirebaseLand(onClick: ()->Unit) {
-    Row(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .padding(top = 16.dp),
-        ) {
-            AppLogo(Modifier.fillMaxWidth())
-            ContinueToAppButton(onClick, Modifier.fillMaxWidth())
-        }
-        Column(
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight()
-                .padding(end = 16.dp, top = 50.dp),
-        ) {
-            WelcomeMessage(36, Modifier.fillMaxWidth())
         }
     }
 }
