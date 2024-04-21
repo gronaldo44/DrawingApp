@@ -111,6 +111,12 @@ fun ContinueToAppButton(onClick: ()->Unit, modifier: Modifier = Modifier) {
 }
 
 // Portrait and Landscape Composable using shared elements
+/**
+ * ComposableSplashPort composable function to display the splash screen layout in portrait mode.
+ * This composable includes an app logo, a welcome message, and a button to continue to the app.
+ *
+ * @param onClick lambda function to handle button click event
+ */
 @Composable
 fun ComposableSplashPort(onClick: ()->Unit) {
     Column(
@@ -127,6 +133,12 @@ fun ComposableSplashPort(onClick: ()->Unit) {
     }
 }
 
+/**
+ * ComposableSplashLand composable function to display the splash screen layout in landscape mode.
+ * This composable includes an app logo, a welcome message, and a button to continue to the app.
+ *
+ * @param onClick lambda function to handle button click event
+ */
 @Composable
 fun ComposableSplashLand(onClick: ()->Unit) {
     Row(modifier = Modifier.fillMaxSize()) {

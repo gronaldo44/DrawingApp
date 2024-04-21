@@ -48,6 +48,11 @@ import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
+/**
+ * Fragment responsible for displaying the Firebase sign-in screen.
+ * Users are presented with options to sign in using various authentication methods.
+ * Upon successful sign-in, users are redirected to the home screen.
+ */
 class FirebaseSignInFragment : Fragment() {
     private lateinit var binding: FragmentSplashScreenBinding
 
@@ -60,6 +65,7 @@ class FirebaseSignInFragment : Fragment() {
     ): View {
         Log.d("Creating View", "SplashScreenFragment")
 
+        // Inflate the layout for this fragment
         binding = FragmentSplashScreenBinding.inflate(layoutInflater,  container, false)
 
         // Initialize your ViewModelFactory
@@ -69,6 +75,7 @@ class FirebaseSignInFragment : Fragment() {
         // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
         var viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
 
+        // Set up the composables based on the device's orientation
         binding.composeSplashScreen.setContent {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
@@ -91,7 +98,12 @@ class FirebaseSignInFragment : Fragment() {
 
 // Portrait and Landscape Composable using shared elements
 
-
+/**
+ * Composable function for Firebase sign-in/create view.
+ *
+ * @param viewModel [DrawingViewModel] ViewModel for Firebase authentication.
+ * @param onClick Callback function invoked upon successful login or sign-up.
+ */
 @Composable
 fun ComposableFirebasePort(viewModel: DrawingViewModel, onClick: ()->Unit) {
     var email by remember { mutableStateOf("") }
@@ -153,6 +165,11 @@ fun ComposableFirebasePort(viewModel: DrawingViewModel, onClick: ()->Unit) {
     }
 }
 
+/**
+ * Composable function for Firebase landscape view.
+ *
+ * @param onClick Callback function invoked upon continue button click.
+ */
 @Composable
 fun ComposableFirebaseLand(onClick: ()->Unit) {
     Row(modifier = Modifier.fillMaxSize()) {

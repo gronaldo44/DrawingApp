@@ -1,8 +1,6 @@
 package com.example.drawingapp.viewmodel
 
-import android.content.Context
 import android.util.Log
-import com.example.drawingapp.model.DbDrawing
 import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.google.android.gms.tasks.Task
@@ -12,13 +10,18 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
+/**
+ * Repository class handling authentication and data operations related to the drawing application.
+ */
 class AuthRepository {
-    val db = Firebase.firestore
-    val collection = db.collection("drawingAppCollection")
-
+    /**
+     * Logs in a user with the provided email and password.
+     * @param email User's email
+     * @param password User's password
+     * @return True if login is successful, false otherwise
+     */
     suspend fun login(email: String, password: String): Boolean {
         return try {
             Firebase.auth.signInWithEmailAndPassword(email, password).await()
@@ -30,6 +33,12 @@ class AuthRepository {
         }
     }
 
+    /**
+     * Creates a new user with the provided email and password.
+     * @param email User's email
+     * @param password User's password
+     * @return True if user creation is successful, false otherwise
+     */
     suspend fun createUser(email: String, password: String): Boolean {
         return try {
             Firebase.auth.createUserWithEmailAndPassword(email, password).await()
@@ -41,7 +50,12 @@ class AuthRepository {
         }
     }
 
-    // Upload serialized data to Cloud Storage
+    /**
+     * Uploads serialized drawing data to Cloud Storage and stores reference in Firestore.
+     * @param username Username of the authenticated user
+     * @param drawingId ID of the drawing
+     * @param serializedData Serialized data of the drawing
+     */
     fun uploadSerializedData(username: String, drawingId: String, serializedData: String) {
         // Ensure user is authenticated
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -85,7 +99,11 @@ class AuthRepository {
             }
     }
 
-    // Retrieve all drawings from Firestore
+    /**
+     * Retrieves all drawings from Firestore for a specific user.
+     * @param username Username of the authenticated user
+     * @return Task<ArrayList<Drawing>> representing the asynchronous operation
+     */
     fun retrieveDrawings(username: String): Task<ArrayList<Drawing>> {
         val firestore = Firebase.firestore
         val drawingsRef = firestore.collection("$username.drawings")

@@ -233,6 +233,17 @@ fun ListItem(
     }
 }
 
+/**
+ * Composable function for the navigation bar UI element.
+ *
+ * This function represents a navigation bar typically placed at the bottom of the screen.
+ * It provides buttons for adding a new drawing and downloading the library.
+ *
+ * @param viewModel The [DrawingViewModel] instance used for managing drawing-related data.
+ * @param viewLifecycleOwner The [LifecycleOwner] associated with the view's lifecycle.
+ * @param addDrawingClicked Callback function triggered when the "Add Drawing" button is clicked.
+ * @param downloadClicked Callback function triggered when the "Download Library" button is clicked.
+ */
 @Composable
 fun Navbar(
     viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,

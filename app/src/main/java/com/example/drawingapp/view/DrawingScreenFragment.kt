@@ -50,17 +50,26 @@ import com.example.drawingapp.viewmodel.DrawingViewModelFactory
 import com.flask.colorpicker.ColorPickerView
 import kotlinx.coroutines.launch
 
-
 /**
  * A Fragment responsible for displaying the drawing screen with a navbar.
  * The navbar allows users to interact with the drawing view and perform actions such as
  * changing brush color and size, selecting shapes, and saving/loading drawings.
  *
+ * @constructor Creates a new instance of DrawingScreenFragment
  */
 class DrawingScreenFragment : Fragment() {
     private lateinit var viewModel: DrawingViewModel
     private lateinit var viewModelFactory: DrawingViewModelFactory
 
+    /**
+     * Inflates the layout and initializes the ViewModel and its dependencies.
+     * Sets up the UI components and handles user interactions.
+     *
+     * @param inflater The layout inflater
+     * @param container The container view group
+     * @param savedInstanceState The saved instance state
+     * @return The root view of the fragment
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -80,35 +89,34 @@ class DrawingScreenFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
+        // Compose the UI components based on the screen orientation
         binding.composeDrawingScreen.setContent {
             val configuration = LocalConfiguration.current
             when (configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     ComposableDrawingLand(viewModel, viewLifecycleOwner, {
+                        // onSaveClick lambda
                         viewModel.viewModelScope.launch {
-                            //onSaveClick
                             if (viewModel.isNewDrawing) {
                                 viewModel.saveBoxIsVisible.value = true
-                            }
-                            else {
+                            } else {
                                 viewModel.saveCurrentDrawing(requireContext())
                                 viewModel.saveBoxIsVisible.value = false
                                 findNavController().navigate(R.id.onSaved)
                             }
                         }
                     }, { name: String, author: String ->
+                        // onSubmitClick lambda
                         viewModel.viewModelScope.launch {
-                            //onSubmitClick
                             viewModel.setName(name)
                             viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
                             viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
                         }
-                    }
-                    ) {
+                    }) {
+                        // onUploadClick lambda
                         viewModel.viewModelScope.launch {
-                            //onUploadClick
                             if (viewModel.saveBoxIsVisible.value) {
                                 Log.d("Uploading to Firebase", "Initializing")
                                 viewModel.saveCurrentDrawing(requireContext())
@@ -122,31 +130,28 @@ class DrawingScreenFragment : Fragment() {
                 }
                 else -> {
                     ComposableDrawingPort(viewModel, viewLifecycleOwner, {
+                        // onSaveClick lambda
                         viewModel.viewModelScope.launch {
-                            //onSaveClick
                             if (viewModel.isNewDrawing) {
                                 viewModel.saveBoxIsVisible.value = true
-                            }
-                            else {
+                            } else {
                                 viewModel.saveCurrentDrawing(requireContext())
                                 viewModel.saveBoxIsVisible.value = false
                                 findNavController().navigate(R.id.onSaved)
                             }
                         }
-                    },
-                     { name: String, author: String ->
+                    }, { name: String, author: String ->
+                        // onSubmitClick lambda
                         viewModel.viewModelScope.launch {
-                            //onSubmitClick
                             viewModel.setName(name)
                             viewModel.setAuthor(author)
                             viewModel.saveCurrentDrawing(requireContext())
                             viewModel.saveBoxIsVisible.value = false
                             findNavController().navigate(R.id.onSaved)
                         }
-                    }
-                    ) {
+                    }) {
+                        // onUploadClick lambda
                         viewModel.viewModelScope.launch {
-                            //onUploadClick
                             if (viewModel.saveBoxIsVisible.value) {
                                 Log.d("Uploading to Firebase", "Initializing")
                                 viewModel.saveCurrentDrawing(requireContext())
@@ -157,7 +162,6 @@ class DrawingScreenFragment : Fragment() {
                             }
                         }
                     }
-
                 }
             }
         }
@@ -276,6 +280,11 @@ fun ShapeButton(label: String, shape: Brush.Shape, viewModel: DrawingViewModel) 
     }
 }
 
+/**
+ * Composable Modifier Selector object. Shows the selectable modifiers.
+ * Blank, Recolor, Invert, Widen, Thin. Offers button for each to select
+ * @param viewModel The ViewModel to communicate with
+ */
 @Composable
 fun ComposableModifierSelector(viewModel: DrawingViewModel) {
     val configuration = LocalConfiguration.current
@@ -410,6 +419,12 @@ fun ComposableSetting(modifier: Modifier, viewModel: DrawingViewModel){
     }
 }
 
+/**
+ * Composable Save button object. Shows the save button in the UI.
+ * Responsible for triggering the save action
+ * @param modifier The Modifier for UI customization
+ * @param onClick Click listener for the save button
+ */
 @Composable
 fun ComposableSave(modifier: Modifier, onClick: () -> Unit){
     Button(onClick = onClick, modifier = modifier.testTag("Save")) {
@@ -541,6 +556,12 @@ fun ComposableDrawingLand(viewModel: DrawingViewModel, viewLifecycleOwner: Lifec
     }
 }
 
+/**
+ * Composable function responsible for rendering the name and author input fields.
+ * Allows users to input the name and author of the drawing
+ * @param viewModel The ViewModel to communicate with
+ * @param onSubmit Click listener for the submit button
+ */
 @Composable
 fun NameAndAuthorInput(viewModel: DrawingViewModel, onSubmit: (String, String) -> Unit) {
     var name by remember { mutableStateOf("") }

@@ -38,7 +38,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The Main Screen Fragment that shows the recycler view and allows to create a new drawing
+ * Fragment for displaying cloud drawings and creating new drawings.
+ * This fragment includes a recycler view and a button for creating new drawings.
  */
 class CloudDrawingsFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
@@ -46,7 +47,7 @@ class CloudDrawingsFragment : Fragment() {
     private lateinit var viewModelFactory: DrawingViewModelFactory
 
     /**
-     * Displays the fragment, which includes a recycler view and a create new drawing button
+     * Inflates the layout for this fragment and initializes necessary components.
      */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,11 +57,10 @@ class CloudDrawingsFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentMainScreenBinding.inflate(layoutInflater, container, false)
 
-        // Initialize your ViewModelFactory
+        // Initialize ViewModel and ViewModelFactory
         val activity = requireActivity() // Get the hosting activity
         val application = activity.application as DrawingApplication
         viewModelFactory = DrawingViewModelFactory(application.repo, application.authRepo)
-        // Use the activity as the ViewModelStoreOwner to share ViewModel across fragments in the same activity
         viewModel = ViewModelProvider(activity, viewModelFactory)[DrawingViewModel::class.java]
 
         // Call getAllDrawings using lifecycleScope to get the list of drawings
@@ -103,6 +103,12 @@ class CloudDrawingsFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Creates a list of drawings.
+     * @param viewModel ViewModel instance for managing drawing data
+     * @param viewLifecycleOwner LifecycleOwner instance for observing LiveData
+     * @param drawingClicked Callback for handling drawing item clicks
+     */
     private fun createDrawingsList(viewModel: DrawingViewModel, viewLifecycleOwner: LifecycleOwner,
                                    drawingClicked: () -> Unit){
         viewLifecycleOwner.lifecycleScope.launch {
@@ -169,6 +175,11 @@ class CloudDrawingsFragment : Fragment() {
     }
 }
 
+/**
+ * Composable function for displaying the download navbar.
+ * @param downloadClicked Callback for handling download button clicks
+ * @param viewModel ViewModel instance for managing drawing data
+ */
 @Composable
 fun DownloadNavbar(downloadClicked: () -> Unit, viewModel: DrawingViewModel){
     var email by remember { mutableStateOf("") }

@@ -142,6 +142,13 @@ object DrawingSerializer {
         return drawing
     }
 
+    /**
+     * Converts a serialized path data string to a drawing
+     * @param data
+     * @param name
+     * @param author
+     * @return The Drawing object reconstructed from cloud data
+     */
     fun toDrawing(data: String, name: String, author: String): Drawing{
         val serializedPathData = toPathDataList(data)
         val paths: ArrayList<PathData> = ArrayList()

@@ -17,13 +17,8 @@ import com.example.drawingapp.model.Drawing
 import com.example.drawingapp.model.DrawingSerializer
 import com.example.drawingapp.model.PathData
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
@@ -231,7 +226,7 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
     }
 
     /**
-     * Sets color of all paths white
+     * Sets color of all paths to the brush's color
      */
     fun colorPaths(){
         _drawing.value?.let{ _brush.value?.color?.let { it1 -> makePathsColorJIN(it, it1) } }
@@ -240,6 +235,11 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         )
         notifyRedrawCanvas()
     }
+
+    /**
+     * Scales all paths by the specified scalar factor.
+     * @param scalar The scalar factor by which paths are scaled.
+     */
     fun scalePaths(scalar: Float){
         _drawing.value?.let { multPathSizeJIN(it, scalar) }
         Log.d("Scaling Drawing",
@@ -247,6 +247,10 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         )
         notifyRedrawCanvas()
     }
+
+    /**
+     * Inverts the colors of all paths.
+     */
     fun invertColor(){
         _drawing.value?.let { invertPathColorsJIN(it) }
         Log.d("Inverting Drawing", "Drawing" + (_drawing.value?.id))
@@ -272,6 +276,10 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         _drawing.value?.name = name
     }
 
+    /**
+     * Sets the author of the drawing.
+     * @param author The author name to set.
+     */
     fun setAuthor(author: String) {
         _drawing.value?.author = author
     }
@@ -289,12 +297,20 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         }
     }
 
+    /**
+     * Creates a user account with the provided email and password.
+     * @param email The email address.
+     * @param password The password.
+     */
     fun createUser(email: String, password: String){
         viewModelScope.launch {
             _loginState.value = authRepository.createUser(email, password)
         }
     }
 
+    /**
+     * Suspended function to save the drawing data to Firebase.
+     */
     suspend fun saveToFireBase() {
         val serializedPathData =
             _drawing.value?.let { DrawingSerializer.fromPathDataList(it.paths) }
@@ -307,11 +323,20 @@ class DrawingViewModel(private val repository: DrawingRepository, private val au
         }
     }
 
+    /**
+     * Loads drawings from Firebase for the specified user.
+     * @param user The username.
+     * @return A Task object containing the list of drawings.
+     */
     fun loadFromFirebase(user: String) : Task<ArrayList<Drawing>> {
         return authRepository.retrieveDrawings(user)
     }
 }
 
+
+/**
+ * Interface for observing changes in the drawing view.
+ */
 interface DrawingViewObserver {
     fun redrawCanvas()
 }

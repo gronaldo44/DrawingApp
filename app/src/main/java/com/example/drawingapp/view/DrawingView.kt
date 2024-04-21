@@ -16,10 +16,14 @@ import kotlin.math.hypot
 import com.example.drawingapp.viewmodel.DrawingViewObserver
 
 /**
- * Custom View for drawing functionality.
+ * DrawingView: Custom View for Drawing Functionality
  *
- * This view allows users to draw on a canvas using touch gestures.
- * It supports setting brush color and size based on the provided ViewModel.
+ * This view enables users to draw on a canvas using touch gestures. It supports setting brush color and size
+ * based on the provided ViewModel.
+ *
+ * @constructor Creates a DrawingView instance.
+ * @param context The context of the view.
+ * @param attrs The attributes set for the view.
  */
 class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs),
     DrawingViewObserver {
@@ -58,6 +62,11 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         }
     }
 
+    /**
+     * When the activity containing the view is being destroyed, either
+     * due to the user navigating away from it or due to configuration
+     * changes like screen rotations.
+     */
     override fun onDetachedFromWindow() {
         Log.d("Removing Observer", "Detached From Window")
         super.onDetachedFromWindow()
